@@ -44,7 +44,8 @@ Once you organize files and directories, you will be able to run the code. Code 
 
 ## Examples
 
-Here is an example of how you can set up the flags and paths, input, and process data:
+We test our approach in Mosul, Iraq during a five years (2014-2018) period armed conflict.
+![App Screenshot](Results/study_area.png)
 
 ## Documentation
 
