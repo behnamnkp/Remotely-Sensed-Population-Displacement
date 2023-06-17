@@ -21,6 +21,7 @@ This project was part of a grant funded by Minerva Research Initiative and the A
 - Python 3.9
 - R version 4.2.3 (2023-03-15 ucrt)
 - Matlab 2020b
+- Wget
 
 ## Features
 
@@ -45,7 +46,7 @@ Once you organize files and directories, you will be able to run the code. Code 
 ## Examples
 
 We test our approach in Mosul, Iraq during a five years (2014-2018) of armed conflict.
-![Study area](Figs/study_area.png)
+![Study area](Figs/study_area_final.png)
 
 ## Documentation
 

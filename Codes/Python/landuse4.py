@@ -1,15 +1,11 @@
-import pandas as pd
 import numpy as np
-import matplotlib.pyplot as plt
-from sklearn.linear_model import LinearRegression
-import numpy as np
-import gdal, os
 import matplotlib.pyplot as plt
 from matplotlib import *
 import pandas as pd
+import rtree
 import scipy.stats
-from pysal.lib import weights
-import pysal as ps
+# from pysal.lib import weights
+# import pysal as ps
 import libpysal
 from libpysal.weights import Queen, Rook, KNN
 from esda.moran import Moran
@@ -24,7 +20,6 @@ from os import listdir
 from os.path import isfile, join
 # from simpledbf import Dbf5
 import geopandas as gp
-import libpysal
 import mapclassify
 # import pysal as ps
 # import libpysal
@@ -50,12 +45,20 @@ from statsmodels.stats.anova import anova_lm
 import seaborn as sns
 # from pysal.contrib.viz import mapping as maps
 # import mapclassify
-image_path = 'G:/backupC27152020/Population_Displacement_Final/Resources/VHR/images/'
-landuse_path = 'G:/backupC27152020/Population_Displacement_Final/Resources/VHR/landuse/'
-viirs_path = 'G:/backupC27152020/Population_Displacement_Final/Resources/VIIRS/VNP46A2/'
-geodb_path = 'G:/backupC27152020/Population_Displacement_Final/Resources/poulation_disp.gdb/Data/'
-temp = 'G:/backupC27152020/Population_Displacement_Final/Resources/Temp/'
-results = 'G:/backupC27152020/Population_Displacement_Final/Resources/Results/'
+# image_path = 'G:/backupC27152020/Population_Displacement_Final/Resources/VHR/images/'
+# landuse_path = 'G:/backupC27152020/Population_Displacement_Final/Resources/VHR/landuse/'
+# viirs_path = 'G:/backupC27152020/Population_Displacement_Final/Resources/VIIRS/VNP46A2/'
+# geodb_path = 'G:/backupC27152020/Population_Displacement_Final/Resources/poulation_disp.gdb/Data/'
+# temp = 'G:/backupC27152020/Population_Displacement_Final/Resources/Temp/'
+# results = 'G:/backupC27152020/Population_Displacement_Final/Resources/Results/'
+# date = '03292020'
+
+image_path = 'C:/Users/bzn5190/Dropbox (UNC Charlotte)/Population Displacement - paper and resource/Sources/VHR/images/'
+landuse_path = 'C:/Users/bzn5190/Dropbox (UNC Charlotte)/Population Displacement - paper and resource/Sources/VHR/landuse/'
+viirs_path = 'C:/Users/bzn5190/Dropbox (UNC Charlotte)/Population Displacement - paper and resource/Sources/VIIRS/VNP46A2/'
+geodb_path = 'C:/Users/bzn5190/Dropbox (UNC Charlotte)/Population Displacement - paper and resource/Sources/poulation_disp.gdb/Data/'
+temp = 'C:/Users/bzn5190/Dropbox (UNC Charlotte)/Population Displacement - paper and resource/Sources/Temp/'
+results = 'C:/Users/bzn5190/Dropbox (UNC Charlotte)/Population Displacement - paper and resource/Sources/Results/'
 date = '03292020'
 
 # Choose the year of the analysis:
@@ -69,7 +72,7 @@ years = ['2013', '2014', '2015', '2016', '2017', '2018'] # 2014-15-16-17-18 is a
 #     else:
 #         inputraster = 'label' + year +'.tif'
 #         outpuraster = 'labelrsm' + year +'.tif'
-#         arcpy.Resample_management(inputraster,outpuraster,"50 50", "Majority")
+#         arcpy.Resample_management(inputraster, outpuraster, "50 50", "Majority")
 #
 # convert to point
 # for year in years:
@@ -80,7 +83,7 @@ years = ['2013', '2014', '2015', '2016', '2017', '2018'] # 2014-15-16-17-18 is a
 #         # arcpy.RasterToPoint_conversion(image_path + 'labelrsm' + year + '.tif', temp + 'label' + year, "VALUE")
 
 
-# models = ['nontl', 'ntlmed', 'ntl_corrected_med_annualByMonth', 'ntl_corrected_med_monthly']
+# models = ['nontl', 'ntlmed', 'ntl_corrected_med_annualByMonth', 'ntl_corrected_med_monthly', 'ntlMonthlyIncorrected_']
 models = ['ntlmed']
 
 for mdl in models:
@@ -179,11 +182,15 @@ for mdl in models:
 
         ntl_scale_NTL2['CNTL' + year] = intersect2.groupby(intersect2.index).max()['CNTL' + year]
 
-        ntl_scale_NTL2.reset_index(inplace=True)
-        NTL_clip.reset_index(inplace=True)
+        # ntl_scale_NTL2.reset_index(inplace=True)
+        # NTL_clip.reset_index(inplace=True)
+        NTL_clip.set_index('ntl_clip_id', inplace=True)
         ntl_scale_NTL2 = NTL_clip.merge(ntl_scale_NTL2, left_on = NTL_clip.index, right_on = ntl_scale_NTL2.index, how='left')
-        ntl_scale_NTL2.drop(['key_0', 'index', 'Shape_Leng', 'Shape_Area', 'ntl_area', 'NTL2014', 'NTL2015', 'ntl_id',
-                        'NTL2016' , 'NTL2017' ,'NTL2018' , 'NTL2013', 'ntl_clip_id_x', 'ntl_clip_area'],
+        # ntl_scale_NTL2.drop(['key_0', 'index', 'Shape_Leng', 'Shape_Area', 'ntl_area', 'NTL2014', 'NTL2015', 'ntl_id',
+        #                 'NTL2016' , 'NTL2017' ,'NTL2018' , 'NTL2013', 'ntl_clip_id_x', 'ntl_clip_area'],
+        #                 inplace=True, axis=1)
+        ntl_scale_NTL2.drop(['key_0', 'Shape_Leng', 'Shape_Area', 'ntl_area', 'NTL2014', 'NTL2015', 'ntl_id',
+                        'NTL2016' , 'NTL2017' ,'NTL2018' , 'NTL2013', 'ntl_clip_area'],
                         inplace=True, axis=1)
         try:
             ntl_scale_NTL2.drop(['level_0'], inplace=True, axis=1)
@@ -220,7 +227,7 @@ for mdl in models:
             plt.title('Cluster Map of Nightlight Residuals (2013)', size=20)
             plt.show()
             plt.savefig(
-                'G:/backupC27152020/Population_Displacement_Final/Results/Model/Cluster Map of Nightlight Residuals.png',
+                'C:/Users/bzn5190/Dropbox (UNC Charlotte)/Population Displacement - paper and resource/Results/Cluster Map of Nightlight Residuals.png',
                 dpi=500, bbox_inches='tight')
 
             #1 HH, 2 LH, 3 LL, 4 HL
@@ -250,7 +257,8 @@ for mdl in models:
 
             model_NTL_spatial.save(results + 'ols_ntl_spatial.pickle', remove_data=False)
 
-            cluster = cluster.merge(NTL_clip['ntl_clip_id'], left_on=cluster.index, right_on=NTL_clip.index, how='left')
+            NTL_clip.reset_index(inplace=True)
+            cluster = cluster.merge(NTL_clip[['ntl_clip_id']], left_on=cluster.index, right_on=NTL_clip.index.array, how='left')
             cluster.drop('key_0', axis=1, inplace=True)
             cluster.set_index('ntl_clip_id', inplace=True)
             intersect2 = intersect2.merge(cluster.loc[:, ['clusters2013_HH','clusters2013_HL', 'clusters2013_LL','clusters2013_NS']],
@@ -338,8 +346,8 @@ for mdl in models:
 
             model_NTL_spatial.save(results + 'ols_ntl_spatial.pickle', remove_data=False)
 
-
-            cluster = cluster.merge(NTL_clip['ntl_clip_id'], left_on=cluster.index, right_on=NTL_clip.index, how='left')
+            NTL_clip.reset_index(inplace=True)
+            cluster = cluster.merge(NTL_clip['ntl_clip_id'], left_on=cluster.index, right_on=NTL_clip.index.array, how='left')
             cluster.drop('key_0', axis=1, inplace=True)
             cluster.set_index('ntl_clip_id', inplace=True)
             intersect2 = intersect2.merge(cluster.loc[:, ['clusters2014_HH','clusters2014_HL', 'clusters2014_LH', 'clusters2014_LL','clusters2014_NS']],
@@ -427,7 +435,8 @@ for mdl in models:
 
             model_NTL_spatial.save(results + 'ols_ntl_spatial.pickle', remove_data=False)
 
-            cluster = cluster.merge(NTL_clip['ntl_clip_id'], left_on=cluster.index, right_on=NTL_clip.index, how='left')
+            NTL_clip.reset_index(inplace=True)
+            cluster = cluster.merge(NTL_clip['ntl_clip_id'], left_on=cluster.index, right_on=NTL_clip.index.array, how='left')
             cluster.drop('key_0', axis=1, inplace=True)
             cluster.set_index('ntl_clip_id', inplace=True)
             intersect2 = intersect2.merge(cluster.loc[:, ['clusters2015_HH','clusters2015_HL', 'clusters2015_LH', 'clusters2015_LL','clusters2015_NS']],
@@ -514,7 +523,8 @@ for mdl in models:
 
             model_NTL_spatial.save(results + 'ols_ntl_spatial.pickle', remove_data=False)
 
-            cluster = cluster.merge(NTL_clip['ntl_clip_id'], left_on=cluster.index, right_on=NTL_clip.index, how='left')
+            NTL_clip.reset_index(inplace=True)
+            cluster = cluster.merge(NTL_clip['ntl_clip_id'], left_on=cluster.index, right_on=NTL_clip.index.array, how='left')
             cluster.drop('key_0', axis=1, inplace=True)
             cluster.set_index('ntl_clip_id', inplace=True)
             intersect2 = intersect2.merge(cluster.loc[:, ['clusters2016_HH','clusters2016_HL', 'clusters2016_LH', 'clusters2016_LL','clusters2016_NS']],
@@ -601,8 +611,8 @@ for mdl in models:
 
             model_NTL_spatial.save(results + 'ols_ntl_spatial.pickle', remove_data=False)
 
-
-            cluster = cluster.merge(NTL_clip['ntl_clip_id'], left_on=cluster.index, right_on=NTL_clip.index, how='left')
+            NTL_clip.reset_index(inplace=True)
+            cluster = cluster.merge(NTL_clip['ntl_clip_id'], left_on=cluster.index, right_on=NTL_clip.index.array, how='left')
             cluster.drop('key_0', axis=1, inplace=True)
             cluster.set_index('ntl_clip_id', inplace=True)
             intersect2 = intersect2.merge(cluster.loc[:, ['clusters2017_HH','clusters2017_LH', 'clusters2017_LL','clusters2017_NS']],
@@ -690,8 +700,8 @@ for mdl in models:
 
             model_NTL_spatial.save(results + 'ols_ntl_spatial.pickle', remove_data=False)
 
-
-            cluster = cluster.merge(NTL_clip['ntl_clip_id'], left_on=cluster.index, right_on=NTL_clip.index, how='left')
+            NTL_clip.reset_index(inplace=True)
+            cluster = cluster.merge(NTL_clip['ntl_clip_id'], left_on=cluster.index, right_on=NTL_clip.index.array, how='left')
             cluster.drop('key_0', axis=1, inplace=True)
             cluster.set_index('ntl_clip_id', inplace=True)
             intersect2 = intersect2.merge(cluster.loc[:, ['clusters2018_HH','clusters2018_HL', 'clusters2018_LL','clusters2018_NS']],
@@ -906,10 +916,13 @@ for mdl in models:
     ntl_scale_Pop2['target_pop2013'] = intersect2.groupby(intersect2.index).max()['estPop2013']
 
     ntl_scale_Pop2.reset_index(inplace=True)
-    census.reset_index(inplace=True)
-    ntl_scale_Pop2 = census.merge(ntl_scale_Pop2, left_on = census.index, right_on = ntl_scale_Pop2.index, how='left')
-    ntl_scale_Pop2.drop(['key_0', 'index', 'Shape_Leng', 'Shape_Area', 'MAX_popult', 'census_id_x', 'census_area'],
+    ntl_scale_Pop2 = census.merge(ntl_scale_Pop2, left_on = census.index.array, right_on = ntl_scale_Pop2.index.array, how='left')
+    # ntl_scale_Pop2.drop(['key_0', 'index', 'Shape_Leng', 'Shape_Area', 'MAX_popult', 'census_id_x', 'census_area'],
+    #                 inplace=True, axis=1)
+    ntl_scale_Pop2.drop(['key_0', 'Shape_Leng', 'Shape_Area', 'MAX_popult', 'census_area'],
                     inplace=True, axis=1)
+
+    ntl_scale_Pop2.rename({'census_id_y':'census_id'}, axis=1)
     ntl_scale_Pop2['X'] = ntl_scale_Pop2.geometry.centroid.x
     ntl_scale_Pop2['Y'] = ntl_scale_Pop2.geometry.centroid.y
     ntl_scale_Pop2['Census_area'] = ntl_scale_Pop2.geometry.area
@@ -948,12 +961,6 @@ for mdl in models:
     print(vif)
 
     print('Multiple Linear Regression for disaggregating population with land use')
-    model_Pop = ols("estPop2013_den ~ disNTL2013_hr_den + disNTL2013_nr_den + disNTL2013_lr_den + disNTL2013_bg_den", ntl_scale_Pop2).fit()
-    print(model_Pop.summary())
-    print("\nRetrieving manually the parameter estimates:")
-    print(model_Pop._results.params)
-
-    print('Multiple Linear Regression for disaggregating population with land use')
     model_Pop = ols("estPop2013 ~ area_hr + area_nr + area_lr + area_bg", ntl_scale_Pop2).fit()
     print(model_Pop.summary())
     print("\nRetrieving manually the parameter estimates:")
@@ -972,7 +979,7 @@ for mdl in models:
     plt.title('Cluster Map of Population Residuals (2013)', size=20)
     plt.show()
     plt.savefig(
-        'G:/backupC27152020/Population_Displacement_Final/Results/Model/Cluster Map of Population Residuals.png',
+        'C:/Users/bzn5190/Dropbox (UNC Charlotte)/Population Displacement - paper and resource/Results/Cluster Map of Population Residuals.png',
         dpi=500, bbox_inches='tight')
 
     # 1 HH, 2 LH, 3 LL, 4 HL
@@ -1003,7 +1010,7 @@ for mdl in models:
 
     model_pop_spatial.save(results + 'ols_pop_spatial.pickle', remove_data=False)
 
-    cluster = cluster.merge(census['census_id'], left_on=cluster.index, right_on=census.index, how='left')
+    cluster = cluster.merge(census['census_id'], left_on=cluster.index, right_on=census.index.array, how='left')
     cluster.drop('key_0', axis=1, inplace=True)
     cluster.set_index('census_id', inplace=True)
     intersect2 = intersect2.merge(
@@ -1084,6 +1091,11 @@ for mdl in models:
     intersect2.groupby('census_id').sum().loc[:, ['disPop2013_prime']]
     intersect2.groupby('census_id').max().loc[:, ['estPop2013']]
 
+
+
+
+
+
     # in the level of night light
     intersect2.set_index('ntl_clip_id', inplace=True)
     ntl_scale_NTL = intersect2.groupby(['ntl_clip_id', 'landuse2014']).sum().loc[:,['intersect_area','disNTL_prime2013', 'disPop2013_prime']]
@@ -1101,7 +1113,7 @@ for mdl in models:
 
     ntl_scale_NTL2.reset_index(inplace=True)
     NTL_clip.reset_index(inplace=True)
-    ntl_scale_NTL2 = NTL_clip.merge(ntl_scale_NTL2, left_on = NTL_clip.index, right_on = ntl_scale_NTL2.index, how='left')
+    ntl_scale_NTL2 = NTL_clip.merge(ntl_scale_NTL2, left_on = NTL_clip.index.array, right_on = ntl_scale_NTL2.index.array, how='left')
     ntl_scale_NTL2.drop(['key_0', 'index', 'Shape_Leng', 'Shape_Area', 'ntl_id','ntl_area', 'NTL2013_x', 'NTL2014',
                          'NTL2015', 'NTL2016','NTL2017', 'NTL2018', 'ntl_clip_id_x', 'ntl_clip_area'],
                         inplace=True, axis=1)
@@ -1126,7 +1138,6 @@ for mdl in models:
 
         ntl_scale_NTL2.to_csv(results + 'observations_' + 'lndus_' + date + '.csv')
     elif mdl == 'ntlmed':
-
 
         print('Multiple Linear Regression: pop_medntl_annual_incorrected')
         model_NTL_Pop = ols("Pop2013 ~  NTL2013_hr",ntl_scale_NTL2).fit()
@@ -1419,7 +1430,7 @@ axs[1,2].get_xaxis().set_visible(False)
 axs[1,2].get_yaxis().set_visible(False)
 axs[1,2].title.set_text('Estimated population (2018)')
 plt.suptitle("Population (Landuse Model)", size=16)
-plt.savefig('G:/backupC27152020/Population_Displacement_Final/Results/Model/Population (Landuse).png', dpi=500, bbox_inches='tight')
+plt.savefig('C:/Users/bzn5190/Dropbox (UNC Charlotte)/Population Displacement - paper and resource/Results/model/Population (Landuse).png', dpi=500, bbox_inches='tight')
 
 vmin = np.min(np.array(NTL_clip_aux3_noNeg.loc[:, ['estpop2014change', 'estpop2015change', 'estpop2016change', 'estpop2017change', 'estpop2018change']]))
 vmax = np.max(np.array(NTL_clip_aux3_noNeg.loc[:, ['estpop2014change', 'estpop2015change', 'estpop2016change', 'estpop2017change', 'estpop2018change']]))
@@ -1452,7 +1463,7 @@ axs[1,2].get_xaxis().set_visible(False)
 axs[1,2].get_yaxis().set_visible(False)
 axs[1,2].title.set_text('Estimated population change (2018)')
 plt.suptitle("Population Change (Landuse Model)", size=16)
-plt.savefig('G:/backupC27152020/Population_Displacement_Final/Results/Model/Population Change (Landuse).png', dpi=500, bbox_inches='tight')
+plt.savefig('C:/Users/bzn5190/Dropbox (UNC Charlotte)/Population Displacement - paper and resource/Results/Model/Population Change (Landuse).png', dpi=500, bbox_inches='tight')
 
 # Scatter plot of predictions
 try:
@@ -1685,7 +1696,7 @@ p = NTL_clip_aux5.plot(column='Pop2013', cmap='Spectral_r', linewidth=0.1, ax=ax
 axs.get_xaxis().set_visible(False)
 axs.get_yaxis().set_visible(False)
 axs.title.set_text('Census Population (2013)')
-fig.savefig('G:/backupC27152020/Population_Displacement_Final/Results/Model/Disaggregated Census Population.png', dpi=500, bbox_inches='tight')
+fig.savefig('C:/Users/bzn5190/Dropbox (UNC Charlotte)/Population Displacement - paper and resource/Results/model/Disaggregated Census Population.png', dpi=500, bbox_inches='tight')
 
 fig, axs = plt.subplots(2, 3, figsize=(20, 10))
 NTL_clip_aux3_noNeg.plot(column='pred', cmap='Spectral_r', linewidth=0.1, ax=axs[0,0], edgecolor='white', legend=True, vmin=vmin, vmax=vmax)
@@ -1713,12 +1724,12 @@ axs[1,2].get_xaxis().set_visible(False)
 axs[1,2].get_yaxis().set_visible(False)
 axs[1,2].title.set_text('Estimated population (2018)')
 plt.suptitle("Population (GWR-E)", size=16)
-plt.savefig('G:/backupC27152020/Population_Displacement_Final/Results/Model/Population (Landuse-NTL).png', dpi=500, bbox_inches='tight')
+plt.savefig('C:/Users/bzn5190/Dropbox (UNC Charlotte)/Population Displacement - paper and resource/Results/model/Population (Landuse-NTL).png', dpi=500, bbox_inches='tight')
 
 vmin = np.min(np.array(NTL_clip_aux3_noNeg.loc[:, ['estpop2014change', 'estpop2015change', 'estpop2016change', 'estpop2017change', 'estpop2018change']]))
 vmax = np.max(np.array(NTL_clip_aux3_noNeg.loc[:, ['estpop2014change', 'estpop2015change', 'estpop2016change', 'estpop2017change', 'estpop2018change']]))
 vmin=-5000
-vmax=3000
+vmax=4000
 
 fig, axs = plt.subplots(2, 3, figsize=(20, 10))
 p = NTL_clip_aux3_noNeg.plot(column='pred', cmap='Spectral_r', linewidth=0.1, ax=axs[0,0], edgecolor='white', legend=True)
@@ -1746,10 +1757,10 @@ axs[1,2].get_xaxis().set_visible(False)
 axs[1,2].get_yaxis().set_visible(False)
 axs[1,2].title.set_text('Estimated population change (2018)')
 plt.suptitle("Population Change (GWR-E)", size=16)
-plt.savefig('G:/backupC27152020/Population_Displacement_Final/Results/Model/Population Change (Landuse-NTL).png', dpi=500, bbox_inches='tight')
+plt.savefig('C:/Users/bzn5190/Dropbox (UNC Charlotte)/Population Displacement - paper and resource/Results/model/Population Change (Landuse-NTL).png', dpi=500, bbox_inches='tight')
 
 # Scatter plot of predictions
-LR = pd.read_csv('G:/backupC27152020/Population_Displacement_Final/Resources/Results/LR_median_ntlhr_annual_incorrected_03292020.csv')
+LR = pd.read_csv('C:/Users/bzn5190/Dropbox (UNC Charlotte)/Population Displacement - paper and resource/Sources/Results/LR_median_ntlhr_annual_incorrected_03292020.csv')
 try:
     LR.set_index('ntl.data1$ntl_clip_id_y', inplace=True)
 except:
@@ -1783,7 +1794,7 @@ p = sns.scatterplot(data= gwrpopLanduseNTL, x='pred', y='Pop2013', ax=axs[1,1])
 axs[1,1].title.set_text('GWR-E')
 axs[1,1].set(xlabel="Predicted Population \n (d) ")
 axs[1,1].set(ylabel="Census Population")
-fig.savefig('G:/backupC27152020/Population_Displacement_Final/Results/Model/GWR-LR-Predictions.png', dpi=500, bbox_inches='tight')
+fig.savefig('C:/Users/bzn5190/Dropbox (UNC Charlotte)/Population Displacement - paper and resource/Results/model/GWR-LR-Predictions.png', dpi=500, bbox_inches='tight')
 
 import sklearn.metrics as metrics
 mae_LrpopLanduseNTL = metrics.mean_absolute_error(LrpopLanduseNTL.Pop2013, LrpopLanduseNTL.pred)
