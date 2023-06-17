@@ -44,7 +44,7 @@ Once you organize files and directories, you will be able to run the code. Code 
 
 ## Examples
 
-We test our approach in Mosul, Iraq during a five years (2014-2018) period armed conflict.
+We test our approach in Mosul, Iraq during a five years (2014-2018) of armed conflict.
 ![Study area](Figs/study_area.png)
 
 ## Documentation
