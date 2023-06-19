@@ -11,6 +11,7 @@ def main():
         config = json.load(config_file)
 
     das_map = Dasymetric(config)
+    das_map.resample_raster('label2014.tif', 50, 50, method='Majority')
     das_map.vectorize_raster('labelrsm2014.tif')
     #das_map.read_layers(config)
 

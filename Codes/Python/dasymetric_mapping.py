@@ -1,4 +1,5 @@
 from osgeo import gdal, ogr, osr
+from scipy import ndimage
 
 class Dasymetric:
 
@@ -10,6 +11,86 @@ class Dasymetric:
         self.DOCS = config['file_paths']['DOCS']
         self.FIGS = config['file_paths']['FIGS']
         self.CODES = config['file_paths']['CODES']
+
+    def resample_raster(self, layer, dx, dy, method='Majority'):
+
+        # Open the input raster file
+        input_ds = gdal.Open(self.INPUT + 'VHR/images/' + layer)
+
+        # Define the output raster properties
+        output_path = self.OUTPUT + 'rsm' + layer
+        output_size_x = dx  # Desired output width in pixels
+        output_size_y = dy  # Desired output height in pixels
+
+        if method == 'Majority':
+
+            # Read the input raster as a NumPy array
+            input_array = input_ds.ReadAsArray()
+
+            # Calculate the new dimensions based on the desired pixel sizes
+            new_width = int(input_ds.RasterXSize * input_ds.GetGeoTransform()[1] / output_size_x)
+            new_height = int(input_ds.RasterYSize * abs(input_ds.GetGeoTransform()[5]) / output_size_y)
+
+            # Resample the input array using the majority value
+            resampled_array = ndimage.zoom(
+                input_array, (new_height / input_array.shape[0], new_width / input_array.shape[1]), order=0)
+
+            driver = gdal.GetDriverByName('GTiff')
+            output_ds = driver.Create(output_path, new_width, new_height, 1, gdal.GDT_Float32)
+
+            # Calculate the new geotransform for the output raster
+            new_geotransform = list(input_ds.GetGeoTransform())
+            new_geotransform[1] = input_ds.GetGeoTransform()[1] * input_ds.RasterXSize / new_width
+            new_geotransform[5] = input_ds.GetGeoTransform()[5] * input_ds.RasterYSize / new_height
+
+            # Set the geotransform and projection for the output raster
+            output_ds.SetGeoTransform(new_geotransform)
+            output_ds.SetProjection(input_ds.GetProjection())
+
+            # Write the resampled array to the output raster
+            output_band = output_ds.GetRasterBand(1)
+            output_band.WriteArray(resampled_array)
+
+            # Clean up and close the datasets
+            output_band = None
+            output_ds = None
+
+        elif method=='GRIORA_Bilinear':
+
+            # Resample the raster using gdal.Warp
+            gdal.Warp(output_path, input_ds, xRes=output_size_x, yRes=output_size_y, resampleAlg=gdal.GRIORA_Bilinear)
+
+        elif method=='GRIORA_NearestNeighbour':
+
+            # Resample the raster using gdal.Warp
+            gdal.Warp(output_path, input_ds, xRes=output_size_x, yRes=output_size_y, resampleAlg=gdal.GRIORA_NearestNeighbour)
+
+        elif method=='GRIORA_Cubic':
+
+            # Resample the raster using gdal.Warp
+            gdal.Warp(output_path, input_ds, xRes=output_size_x, yRes=output_size_y, resampleAlg=gdal.GRIORA_Cubic)
+
+        elif method=='GRIORA_CubicSpline':
+
+            # Resample the raster using gdal.Warp
+            gdal.Warp(output_path, input_ds, xRes=output_size_x, yRes=output_size_y, resampleAlg=gdal.GRIORA_CubicSpline)
+
+        elif method=='GRIORA_Lanczos':
+
+            # Resample the raster using gdal.Warp
+            gdal.Warp(output_path, input_ds, xRes=output_size_x, yRes=output_size_y, resampleAlg=gdal.GRIORA_Lanczos)
+
+        elif method=='GRIORA_Average':
+
+            # Resample the raster using gdal.Warp
+            gdal.Warp(output_path, input_ds, xRes=output_size_x, yRes=output_size_y, resampleAlg=gdal.GRIORA_Average)
+
+        else:
+            print(method + ' is not valid')
+
+
+        # Close the raster dataset
+        input_ds = None
 
     def vectorize_raster(self, layer):
         """
@@ -95,6 +176,8 @@ class Dasymetric:
         feature = None
         vector_ds = None
         raster_ds = None
+
+        return layer
 
     def read_layers(self, landuse=1, nightlight=0):
         """
