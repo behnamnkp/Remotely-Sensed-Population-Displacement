@@ -10,7 +10,7 @@
       <sourceFolder url="file://$MODULE_DIR$/Figs2" isTestSource="false" />
       <excludeFolder url="file://$MODULE_DIR$/Results" />
     </content>
-    <orderEntry type="inheritedJdk" />
+    <orderEntry type="jdk" jdkName="Python 3.10 (population_displacement)" jdkType="Python SDK" />
     <orderEntry type="sourceFolder" forTests="false" />
   </component>
 </module>

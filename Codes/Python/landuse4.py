@@ -36,6 +36,7 @@ from mpl_toolkits.mplot3d import Axes3D
 from statsmodels.formula.api import ols
 from splot import _viz_utils
 from patsy import dmatrices
+from osgeo import gdal
 from statsmodels.stats.outliers_influence import variance_inflation_factor
 import spreg
 from statsmodels import regression
@@ -122,6 +123,9 @@ for mdl in models:
             landuse.drop('pointid', inplace=True, axis=1)
             landuse.drop('index_right', inplace=True, axis=1)
 
+    # When working with dasymetric modeling, all layers must intersect to create a geometric layer that represents the
+    # highest spatial solution. All objects within this new layer must have a value for all layers involved in dasymetic
+    # mapping.
     NTL_clip = gp.clip(NTL, boundary)
     NTL_clip['ntl_clip_id'] = NTL_clip.index + 1
     NTL_clip['ntl_clip_area'] = NTL_clip.area
@@ -129,15 +133,16 @@ for mdl in models:
     landuse_clip['landuse_clip_id'] = landuse_clip.index + 1
     landuse_clip['landuse_clip_area'] = landuse_clip.geometry.area
 
+    # All layers must have a value in a study area. In other words no NA values for the layers is valid
     intersect1 = gp.overlay(census, NTL_clip, how='intersection')
     intersect2 = gp.overlay(intersect1, landuse_clip, how='intersection')
 
+    # This intersection layer is the highest spatial resolution layer
     intersect2['intersect_id'] = intersect2.index + 1
     intersect2['intersect_area'] = intersect2.area
 
     for year in years:
-        intersect2['CNTL' + year] = (intersect2['ntl_clip_area'] /
-                                                intersect2['ntl_area'])*intersect2['NTL' + year]
+        intersect2['CNTL' + year] = (intersect2['ntl_clip_area'] / intersect2['ntl_area'])*intersect2['NTL' + year]
 
     # # target NTL Area over NTL
     # intersect2['AONTL'] = intersect2['intersect_area'] / intersect2['ntl_clip_area']
@@ -161,6 +166,8 @@ for mdl in models:
 
     for year in years:
 
+        # We also need a target layer. Target layer is determined based on the decision-making problem or preference
+        # of the end user.
         # in the level of night light
         try:
             intersect2.set_index('ntl_clip_id', inplace=True)

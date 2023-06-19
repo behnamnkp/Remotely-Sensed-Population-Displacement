@@ -1,10 +1,11 @@
 {
   "file_paths": {
     "MAIN": "H:/My Drive/population_displacement/",
-    "INPUT": "H:/My Drive/population_displacement/sources/",
-    "OUTPUT": "C:/Users/bzn5190/OneDrive - The Pennsylvania State University/Behavioral_interventions/output/",
-    "DOCS": "C:/Users/bzn5190/OneDrive - The Pennsylvania State University/Behavioral_interventions/documents/",
-    "TEMP": "C:/Users/bzn5190/OneDrive - The Pennsylvania State University/Behavioral_interventions/temp/"
+    "INPUT": "H:/My Drive/population_displacement/Sources/",
+    "OUTPUT": "H:/My Drive/population_displacement/sources/Results",
+    "DOCS": "H:/My Drive/population_displacement/Docs/",
+    "CODES": "H:/My Drive/population_displacement/codes/",
+    "FIGS": "H:/My Drive/population_displacement/Figs/"
   },
   "flags": {
     "COUNTY_FIPS": ["42027", "42033", "42035", "42119", "42087", "42061", "42013"],
