@@ -1,9 +1,17 @@
 from osgeo import gdal, ogr, osr
 from scipy import ndimage
+import geopandas as gp
+import os
+import utils
+import pandas as pd
 
 class Dasymetric:
 
     def __init__(self, config):
+        """
+        set up the falgs for the class.
+        :param config:
+        """
 
         self.MAIN = config['file_paths']['MAIN']
         self.INPUT = config['file_paths']['INPUT']
@@ -11,175 +19,54 @@ class Dasymetric:
         self.DOCS = config['file_paths']['DOCS']
         self.FIGS = config['file_paths']['FIGS']
         self.CODES = config['file_paths']['CODES']
+        self.EMPTY_SUFFIXES = config['flags']['EMPTY_SUFFIXES']
+        self.START_YEAR = config['flags']['START_YEAR']
+        self.END_YEAR = config['flags']['END_YEAR']
+        self.LANDUSE = config['flags']['LANDUSE']
+        self.NIGHTLIGHT = config['flags']['NIGHTLIGHT']
+        self.INTERVAL = config['flags']['INTERVAL']
+        self.STATISTIC = config['flags']['STATISTIC']
+        self.NIGHTLIGHT_ANGLE_CORRECTION = config['flags']['NIGHTLIGHT_ANGLE_CORRECTION']
 
-    def resample_raster(self, layer, dx, dy, method='Majority'):
+    def resample_landuse (self, dx, dy, method='Majority'):
 
-        # Open the input raster file
-        input_ds = gdal.Open(self.INPUT + 'VHR/images/' + layer)
+        path = self.INPUT + "VHR/images/"
+        f = os.listdir(path)
+        f = [i for i in f if not any(i.endswith(suffix) for suffix in self.EMPTY_SUFFIXES)]
 
-        # Define the output raster properties
-        output_path = self.OUTPUT + 'rsm' + layer
-        output_size_x = dx  # Desired output width in pixels
-        output_size_y = dy  # Desired output height in pixels
+        for item in f:
+            if 'rsm' not in item:
+                try:
+                    utils.resample_raster(path, self.INPUT + 'Temp/', item, dx, dy, method=method)
+                except:
+                    print("Having problem resampling item: " + item)
 
-        if method == 'Majority':
+    def vectorize_landuse (self):
 
-            # Read the input raster as a NumPy array
-            input_array = input_ds.ReadAsArray()
+        path = self.INPUT + 'Temp/'
+        f = os.listdir(path)
+        f = [i for i in f if not any(i.endswith(suffix) for suffix in self.EMPTY_SUFFIXES)]
 
-            # Calculate the new dimensions based on the desired pixel sizes
-            new_width = int(input_ds.RasterXSize * input_ds.GetGeoTransform()[1] / output_size_x)
-            new_height = int(input_ds.RasterYSize * abs(input_ds.GetGeoTransform()[5]) / output_size_y)
+        for item in f:
+            if 'rsm' in item:
+                try:
+                    utils.vectorize_raster(path, self.OUTPUT, item)
+                except:
+                    print("Having problem vectorizing item: " + item)
 
-            # Resample the input array using the majority value
-            resampled_array = ndimage.zoom(
-                input_array, (new_height / input_array.shape[0], new_width / input_array.shape[1]), order=0)
+    def vectorize_nightlight(self):
 
-            driver = gdal.GetDriverByName('GTiff')
-            output_ds = driver.Create(output_path, new_width, new_height, 1, gdal.GDT_Float32)
+        path = self.INPUT + 'VIIRS/VNP46A2/'
+        f = os.listdir(path)
+        f = [i for i in f if not any(i.endswith(suffix) for suffix in self.EMPTY_SUFFIXES)]
 
-            # Calculate the new geotransform for the output raster
-            new_geotransform = list(input_ds.GetGeoTransform())
-            new_geotransform[1] = input_ds.GetGeoTransform()[1] * input_ds.RasterXSize / new_width
-            new_geotransform[5] = input_ds.GetGeoTransform()[5] * input_ds.RasterYSize / new_height
+        for item in f:
+            try:
+                utils.vectorize_raster(path, self.OUTPUT, item)
+            except:
+                print("Having problem vectorizing item: " + item)
 
-            # Set the geotransform and projection for the output raster
-            output_ds.SetGeoTransform(new_geotransform)
-            output_ds.SetProjection(input_ds.GetProjection())
-
-            # Write the resampled array to the output raster
-            output_band = output_ds.GetRasterBand(1)
-            output_band.WriteArray(resampled_array)
-
-            # Clean up and close the datasets
-            output_band = None
-            output_ds = None
-
-        elif method=='GRIORA_Bilinear':
-
-            # Resample the raster using gdal.Warp
-            gdal.Warp(output_path, input_ds, xRes=output_size_x, yRes=output_size_y, resampleAlg=gdal.GRIORA_Bilinear)
-
-        elif method=='GRIORA_NearestNeighbour':
-
-            # Resample the raster using gdal.Warp
-            gdal.Warp(output_path, input_ds, xRes=output_size_x, yRes=output_size_y, resampleAlg=gdal.GRIORA_NearestNeighbour)
-
-        elif method=='GRIORA_Cubic':
-
-            # Resample the raster using gdal.Warp
-            gdal.Warp(output_path, input_ds, xRes=output_size_x, yRes=output_size_y, resampleAlg=gdal.GRIORA_Cubic)
-
-        elif method=='GRIORA_CubicSpline':
-
-            # Resample the raster using gdal.Warp
-            gdal.Warp(output_path, input_ds, xRes=output_size_x, yRes=output_size_y, resampleAlg=gdal.GRIORA_CubicSpline)
-
-        elif method=='GRIORA_Lanczos':
-
-            # Resample the raster using gdal.Warp
-            gdal.Warp(output_path, input_ds, xRes=output_size_x, yRes=output_size_y, resampleAlg=gdal.GRIORA_Lanczos)
-
-        elif method=='GRIORA_Average':
-
-            # Resample the raster using gdal.Warp
-            gdal.Warp(output_path, input_ds, xRes=output_size_x, yRes=output_size_y, resampleAlg=gdal.GRIORA_Average)
-
-        else:
-            print(method + ' is not valid')
-
-
-        # Close the raster dataset
-        input_ds = None
-
-    def vectorize_raster(self, layer):
-        """
-        This function vectorizes a raster layer into areal units with the same size as in the raster layer.
-        :return:
-        """
-
-        # Open the raster file
-        raster_ds = gdal.Open(self.INPUT + 'VHR/images/' + layer)
-
-        # Retrieve raster properties
-        width = raster_ds.RasterXSize
-        height = raster_ds.RasterYSize
-        pixel_size_x = raster_ds.GetGeoTransform()[1]
-        pixel_size_y = raster_ds.GetGeoTransform()[5]
-        projection = raster_ds.GetProjection()
-
-        # Set up the output vector file
-        driver = ogr.GetDriverByName('ESRI Shapefile')
-        vector_ds = driver.CreateDataSource(self.OUTPUT + layer.split('.')[0] + '.shp')
-        layer_name = layer.split('.')[0]
-        layer = vector_ds.CreateLayer(layer_name, geom_type=ogr.wkbPolygon, srs=osr.SpatialReference(projection))
-
-        # Set the spatial reference of the vector layer
-        spatial_ref = osr.SpatialReference()
-        spatial_ref.ImportFromWkt(projection)
-
-        # Create the field for the geometry
-        id = ogr.FieldDefn('ID', ogr.OFTInteger)
-        layer.CreateField(id)
-        val = ogr.FieldDefn('Value', ogr.OFTInteger)
-        layer.CreateField(val)
-        area = ogr.FieldDefn('Area', ogr.OFTInteger)
-        layer.CreateField(area)
-
-        # Define the extent of the vector grid
-        x_min = raster_ds.GetGeoTransform()[0]
-        y_max = raster_ds.GetGeoTransform()[3]
-        x_max = x_min + width * pixel_size_x
-        y_min = y_max + height * pixel_size_y
-
-        # Create the polygons
-        for row in range(height):
-            for col in range(width):
-                x = x_min + col * pixel_size_x
-                y = y_max + row * pixel_size_y
-
-                ring = ogr.Geometry(ogr.wkbLinearRing)
-                ring.AddPoint(x, y)
-                ring.AddPoint(x + pixel_size_x, y)
-                ring.AddPoint(x + pixel_size_x, y + pixel_size_y)
-                ring.AddPoint(x, y + pixel_size_y)
-                ring.AddPoint(x, y)
-
-                polygon = ogr.Geometry(ogr.wkbPolygon)
-                polygon.AddGeometry(ring)
-
-                # Set the spatial reference for the geometry
-                polygon.AssignSpatialReference(spatial_ref)
-
-                # Create a feature and add the polygon geometry to it
-                feature = ogr.Feature(layer.GetLayerDefn())
-                feature.SetGeometry(polygon)
-
-                # Set the field value
-                feature.SetField('ID', row * width + col)
-
-                # Retrieve the raster value for the current pixel
-                band = raster_ds.GetRasterBand(1)
-                value = band.ReadAsArray(col, row, 1, 1)[0][0]
-
-                # Set the raster value as an attribute
-                feature.SetField('Value', int(value))
-
-                # Calculate and set the pixel area as an attribute
-                pixel_area = abs(pixel_size_x) * abs(pixel_size_y)
-                feature.SetField('Area', pixel_area)
-
-                # Add the feature to the layer
-                layer.CreateFeature(feature)
-
-        # Clean up and close the files
-        feature = None
-        vector_ds = None
-        raster_ds = None
-
-        return layer
-
-    def read_layers(self, landuse=1, nightlight=0):
+    def read_layers(self):
         """
         Read layers that are involved in dasymetric mapping. In the current pipeline we have two auxiliary data sets:
         land use and nightlight. We want to study dasymetric modeling of population using (landuse) and
@@ -187,6 +74,67 @@ class Dasymetric:
         months, and year. The file name must include time information in any of the following formats.
         Annual(e.g., 2015), monthly(e.g., 2015-02), daily(e.g., 2015-02-01).
         """
+        # Read and create geometry and index for auxiliary layers
+        # Nightlight
+        ntl = gp.read_file(self.INPUT + 'Temp/NTL.shp')
+        ntl['ntl_id'] = ntl.index + 1
+        ntl['ntl_area'] = ntl.area
+
+        # Landuse
+        landuse = gp.read_file(self.INPUT + 'Temp/landuse.shp')
+        landuse['landuse_id'] = landuse.index + 1
+        landuse['landuse_area'] = landuse.area
+
+        # Census
+        census = gp.read_file(self.INPUT + 'Temp/census.shp')
+        census['census_id'] = census.index + 1
+        census['census_area'] = census.area
+
+        # Boundary
+        boundary = gp.read_file(self.INPUT + 'Temp/CensusBoundary.shp')
+
+        if self.LANDUSE == 1 and self.NIGHTLIGHT == 1 and self.INTERVAL=='ANNUAL' and \
+                self.NIGHTLIGHT_ANGLE_CORRECTION==0 and self.STATISTIC=='MEDIAN':
+
+            for year in [str(i) for i in range(self.START_YEAR, self.END_YEAR)]:
+                image = gp.read_file(self.OUTPUT + 'ntlmed' + year + '.shp')
+                image.rename({'Value':'Value' + year}, axis=1, inplace=True)
+                ntl = pd.concat([ntl, image['Value' + year]], axis=1)
+            ntl.rename({'Shape_Area':'ntl_area'}, axis=1, inplace=True)
+            ntl.drop('Shape_Leng', axis=1, inplace=True)
+
+            for year in [str(i) for i in range(self.START_YEAR, self.END_YEAR)]:
+                if int(year) >= 2014:
+                    image = gp.read_file(self.OUTPUT + 'rsmlabel' + year + '.shp')
+                    image.rename({'Value': 'Value' + year}, axis=1, inplace=True)
+                    landuse = pd.concat([landuse, image['Value' + year]], axis=1)
+            landuse.rename({'Shape_Area':'landuse_area'}, axis=1, inplace=True)
+            landuse.drop('Shape_Leng', axis=1, inplace=True)
+
+            # Define the boundaries of layers
+            ntl_clip = gp.clip(ntl, boundary)
+            ntl_clip['ntl_clip_id'] = ntl_clip.index + 1
+            ntl_clip['ntl_clip_area'] = ntl_clip.geometry.area
+            landuse_clip = gp.clip(landuse, boundary)
+            landuse_clip['landuse_clip_id'] = landuse_clip.index + 1
+            landuse_clip['landuse_clip_area'] = landuse_clip.geometry.area
+
+            # When working with dasymetric modeling, all layers must intersect to create a geometric layer that
+            # represents the highest spatial solution. All objects within this new layer must have a value for all
+            # layers involved in dasymetric mapping.
+            intersect = gp.overlay(census, ntl_clip, how='intersection')
+            intersect_all = gp.overlay(intersect, landuse_clip, how='intersection')
+
+            # This intersection layer is the highest spatial resolution layer
+            intersect_all['intersect_id'] = intersect_all.index + 1
+            intersect_all['intersect_area'] = intersect_all.geometry.area
+
+            # For boundary areas, we need to calculate nightlight values based on the area.
+            for year in [str(i) for i in range(self.START_YEAR, self.END_YEAR)]:
+                intersect_all['CNTL' + year] = (intersect_all['ntl_clip_area'] / intersect_all['ntl_area']) * \
+                                               intersect_all['NTL' + year]
+
+        return [intersect_all, ntl_clip, landuse_clip]
 
     def create_intersection_layer(self):
         """

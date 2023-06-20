@@ -83,7 +83,6 @@ years = ['2013', '2014', '2015', '2016', '2017', '2018'] # 2014-15-16-17-18 is a
 #         arcpy.RasterToPoint_conversion(viirs_path + 'ntl_corrected_annualByMonth' + year + '.tif', temp + 'ntl_corrected_med_annualByMonth' + year, "VALUE")
 #         # arcpy.RasterToPoint_conversion(image_path + 'labelrsm' + year + '.tif', temp + 'label' + year, "VALUE")
 
-
 # models = ['nontl', 'ntlmed', 'ntl_corrected_med_annualByMonth', 'ntl_corrected_med_monthly', 'ntlMonthlyIncorrected_']
 models = ['ntlmed']
 
