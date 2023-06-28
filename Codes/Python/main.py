@@ -18,7 +18,6 @@ def main():
     # das_map.vectorize_nightlight()
     das_map.dasymetic_mapping()
 
-
     #das_map.read_layers(config)
 
 if __name__ == '__main__':

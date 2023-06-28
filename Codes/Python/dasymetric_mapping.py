@@ -10,8 +10,8 @@ from statsmodels.stats.outliers_influence import variance_inflation_factor
 from libpysal.weights import Queen, Rook, KNN
 from esda.moran import Moran
 from esda.moran import Moran_Local
-from splot.esda import lisa_cluster
 from splot import _viz_utils
+import plot
 
 class Dasymetric:
 
@@ -216,6 +216,7 @@ class Dasymetric:
 
     def upscale_nightlight (self, ntl_level, year):
 
+        results = []
         print(f"Multiple Linear Regression for upscaling nightlight {year}:")
         formula = f"CNTL{year} ~ area_hr{year} + area_nr{year} + area_bg{year} + area_lr{year}"
         y, X = patsy.dmatrices(formula, data=ntl_level, return_type='dataframe')
@@ -223,6 +224,22 @@ class Dasymetric:
         print(model.summary())
         print("\nRetrieving manually the parameter estimates:")
         print(model.params)
+        model.save(self.OUTPUT + f'ols_ntl{year}.pickle', remove_data=False)
+
+        # Extract coefficients, p-values, and standard errors
+        coefficients = model.params.values
+        p_values = model.pvalues.values
+        standard_errors = model.bse.values
+
+        # Format coefficients and add asterisks for significance levels
+        coef_values = [f"{coef:.4f}" if p_value >= 0.05 else f"{coef:.4f}*" for coef, p_value in
+                       zip(coefficients, p_values)]
+
+        # Add coefficients, significance levels, and standard errors to the results list
+        results.append(coef_values)
+        results.append(["" if p_value >= 0.05 else "*" for p_value in p_values])
+        results.append([f"({se:.4f})" for se in standard_errors])
+
 
         print("Checking collinearity (Variance Inflation Factor):")
         vif = pd.DataFrame()
@@ -238,7 +255,7 @@ class Dasymetric:
         moran_ntl = Moran(ntlresid[f'ntlresid{year}'], W)
         print(f'moran_ntl{year}: {moran_ntl.I}')
         moran_loc = Moran_Local(ntlresid[f'ntlresid{year}'], W)
-        p = lisa_cluster(moran_loc, ntlresid, p=0.05, figsize=(9, 9))
+        plot.plot_clusters(moran_loc, ntlresid, "Night Light")
 
         print("Naming clusters (1: HH, 2: LH, 3: LL, 4: HL):")
         cluster = _viz_utils.moran_hot_cold_spots(moran_loc, p=0.05)
@@ -260,6 +277,7 @@ class Dasymetric:
         print(spatial_model.summary())
         print("\nRetrieving manually the parameter estimates:")
         print(spatial_model.params)
+        spatial_model.save(self.OUTPUT + f'spatial_ols_ntl{year}.pickle', remove_data=False)
 
         print("Checking collinearity (Variance Inflation Factor):")
         vif = pd.DataFrame()
@@ -269,6 +287,19 @@ class Dasymetric:
 
         return cluster
 
+    def map_layers(self, cluster, ntl, base):
+
+        cluster = cluster.merge(ntl[['ntl_clip_id']], left_on=cluster.index, right_on=ntl.index.array, how='left')
+        cluster.drop('key_0', axis=1, inplace=True)
+        cluster.set_index('ntl_clip_id', inplace=True)
+        base = base.merge(cluster.loc[:, ['clusters2013_HH', 'clusters2013_HL', 'clusters2013_LL', 'clusters2013_NS']],
+                          left_on=base.index, right_on=cluster.index, how='left')
+        base.rename({'key_0': 'ntl_clip_id'}, inplace=True, axis=1)
+        base.drop('level_0', inplace=True, axis=1)
+
+        cluster.reset_index(inplace=True)
+
+        return [cluster, base]
 
     def dasymetic_mapping(self):
         """
@@ -283,9 +314,11 @@ class Dasymetric:
         for year in [str(i) for i in range(self.START_YEAR, self.END_YEAR)]:
             # We also need a target layer. Target layer is determined based on the decision-making problem or preference
             # of the end user.
-            if self.TARGET_LAYER == "NIGHTLIGHT":
+            if self.TARGET_LAYER == "Night Light":
                 ntl_level = self.target_night_light(base, ntl, year)
                 cluster = self.upscale_nightlight(ntl_level, year)
+                cluster, base = self.map_layers(cluster, ntl, base)
+                self.compare_models(cluster, ntl_level, year, self.TARGET_LAYER)
 
 
 

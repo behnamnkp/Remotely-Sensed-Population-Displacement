@@ -307,7 +307,7 @@ for mdl in models:
 
             model_NTL.save(results + 'ols_ntl.pickle', remove_data=False)
 
-            y, X = dmatrices('CNTL2014 ~ area_hr2014 + area_lr2014 + area_nr2014 + area_bg2014 + area_lr2014', data=ntl_scale_NTL2, return_type='dataframe')
+            y, X = dmatrices('CNTL2014 ~ area_hr2014 + area_lr2014 + area_nr2014 + area_bg2014', data=ntl_scale_NTL2, return_type='dataframe')
             vif = pd.DataFrame()
             vif['VIF'] = [variance_inflation_factor(X.values, i) for i in range(X.shape[1])]
             vif['variable'] = X.columns
