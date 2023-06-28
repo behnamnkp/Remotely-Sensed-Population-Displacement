@@ -93,10 +93,36 @@ class Dasymetric:
         intersect_all['intersect_id'] = intersect_all.index + 1
         intersect_all['intersect_area'] = intersect_all.geometry.area
 
-        # For boundary areas, we need to calculate nightlight values based on the area.
+        # If variables associated with each layer are continuous, we need to adjust their values based on area at the
+        # border lines.
         for year in [str(i) for i in range(self.START_YEAR, self.END_YEAR)]:
             intersect_all['cntl' + year] = (intersect_all['ntl_clip_area'] / intersect_all['ntl_area']) * \
                                            intersect_all['ntl' + year]
+
+        # If variables associated with each layer are categorical, we need to calculate area associate with each
+        # category in the level of main layer.
+        for year in [str(i) for i in range(self.START_YEAR, self.END_YEAR)]:
+            if int(year) >= 2014:
+                areas = intersect_all[['census_id', 'intersect_area']].groupby(['census_id']).sum().astype('float64')
+                intersect_all = intersect_all.join(areas['intersect_area'],
+                                                   on=['census_id'],
+                                                   how='left',
+                                                   lsuffix='_caller',
+                                                   rsuffix='_other')
+                intersect_all['census_res_area' + year] = intersect_all['intersect_area_other']
+                intersect_all.drop('intersect_area_other', inplace=True, axis=1)
+                intersect_all.rename({'intersect_area_caller':'intersect_area'}, axis=1, inplace=True)
+
+        intersect_all = intersect_all.reset_index()[['id', 'census_id', 'census_area', 'ntl_id', 'ntl_area',
+                                                     'ntl_clip_id', 'ntl_clip_area', 'landuse_id', 'landuse_area',
+                                                     'landuse_clip_id', 'landuse_clip_area', 'intersect_id',
+                                                     'intersect_area', 'MAX_popult', 'estPop2013', 'NTL2013', 'NTL2014',
+                                                     'NTL2015', 'NTL2016', 'NTL2017', 'NTL2018', 'landuse2014',
+                                                     'landuse2015', 'landuse2016', 'landuse2017', 'landuse2018',
+                                                     'CNTL2013', 'CNTL2014', 'CNTL2015', 'CNTL2016', 'CNTL2017',
+                                                     'CNTL2018', 'census_res_area2014', 'census_res_area2015',
+                                                     'census_res_area2016', 'census_res_area2017', 'census_res_area2018'
+                                                     ]]
 
         return [intersect_all, lay1, lay2]
 
@@ -149,7 +175,7 @@ class Dasymetric:
 
         return [intersect_all, ntl_clip, landuse_clip]
 
-    def dasymetic_maping(self, target_scale):
+    def dasymetic_maping(self, aux_lay1, aux_lay2, target_scale):
         """
         Conducts dasymetric mapping into the desired scale. Desired scale could be at the level of source layer,
         axiliary layers, or the intersection layer.
