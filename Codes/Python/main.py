@@ -16,8 +16,7 @@ def main():
     # das_map.resample_landuse(50, 50, method='Majority')
     # das_map.vectorize_landuse()
     # das_map.vectorize_nightlight()
-    base, ntl, landuse = das_map.read_layers()
-    das_map.dasymetic_maping(base, ntl, landuse, 'ntl')
+    das_map.dasymetic_mapping()
 
 
     #das_map.read_layers(config)

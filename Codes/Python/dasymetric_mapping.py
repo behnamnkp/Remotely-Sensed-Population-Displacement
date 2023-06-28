@@ -4,6 +4,14 @@ import geopandas as gp
 import os
 import utils
 import pandas as pd
+import statsmodels.api as sm
+import patsy
+from statsmodels.stats.outliers_influence import variance_inflation_factor
+from libpysal.weights import Queen, Rook, KNN
+from esda.moran import Moran
+from esda.moran import Moran_Local
+from splot.esda import lisa_cluster
+from splot import _viz_utils
 
 class Dasymetric:
 
@@ -27,6 +35,7 @@ class Dasymetric:
         self.INTERVAL = config['flags']['INTERVAL']
         self.STATISTIC = config['flags']['STATISTIC']
         self.NIGHTLIGHT_ANGLE_CORRECTION = config['flags']['NIGHTLIGHT_ANGLE_CORRECTION']
+        self.TARGET_LAYER = config['flags']['TARGET_LAYER']
 
     def resample_landuse (self, dx, dy, method='Majority'):
 
@@ -123,7 +132,6 @@ class Dasymetric:
                                                      'CNTL2018', 'census_res_area2014', 'census_res_area2015',
                                                      'census_res_area2016', 'census_res_area2017', 'census_res_area2018'
                                                      ]]
-
         return [intersect_all, lay1, lay2]
 
     def read_layers(self):
@@ -175,11 +183,110 @@ class Dasymetric:
 
         return [intersect_all, ntl_clip, landuse_clip]
 
-    def dasymetic_maping(self, aux_lay1, aux_lay2, target_scale):
+    def target_night_light(self, base, ntl, year):
+
+        b = base.set_index('ntl_clip_id')
+
+        b['countNTL'] = b['index'].groupby(b.index).transform('count')
+        if int(year) < 2014:
+            aux = b.groupby(['ntl_clip_id', 'landuse2014']).sum().loc[:, ['intersect_area']]
+            aux2 = aux.unstack('landuse2014')
+            aux2.columns = ['area_bg' + year, 'area_lr' + year, 'area_hr' + year, 'area_nr' + year]
+            aux2.fillna(0, inplace=True)
+
+        else:
+            aux = b.groupby(['ntl_clip_id', 'landuse' + year]).sum().loc[:, ['intersect_area']]
+            aux2 = aux.unstack('landuse' + year)
+            aux2.columns = ['area_bg' + year, 'area_lr' + year, 'area_hr' + year, 'area_nr' + year]
+            aux2.fillna(0, inplace=True)
+
+        aux2['CNTL' + year] = b.groupby(b.index).max()['CNTL' + year]
+
+        n = ntl.set_index('ntl_clip_id')
+        aux2 = n.merge(aux2, left_on=n.index, right_on=aux2.index, how='left')
+        aux2.drop(
+            ['key_0', 'Shape_Leng', 'Shape_Area', 'ntl_area', 'NTL2014', 'NTL2015', 'ntl_id', 'NTL2016',
+             'NTL2017', 'NTL2018', 'NTL2013', 'ntl_clip_area', 'level_0'], inplace=True, axis=1)
+        n.drop(['level_0'], inplace=True, axis=1)
+
+        aux2['X'] = aux2.geometry.centroid.x
+        aux2['Y'] = aux2.geometry.centroid.y
+
+        return aux2
+
+    def upscale_nightlight (self, ntl_level, year):
+
+        print(f"Multiple Linear Regression for upscaling nightlight {year}:")
+        formula = f"CNTL{year} ~ area_hr{year} + area_nr{year} + area_bg{year} + area_lr{year}"
+        y, X = patsy.dmatrices(formula, data=ntl_level, return_type='dataframe')
+        model = sm.OLS(y, X).fit()
+        print(model.summary())
+        print("\nRetrieving manually the parameter estimates:")
+        print(model.params)
+
+        print("Checking collinearity (Variance Inflation Factor):")
+        vif = pd.DataFrame()
+        vif['VIF'] = [variance_inflation_factor(X.values, i) for i in range(X.shape[1])]
+        vif['Variable'] = X.columns
+        print(vif)
+
+        print("Investigating residuals and identifying clusters:")
+        ntlresid = pd.concat((ntl_level, model.resid), axis=1)
+        ntlresid.rename(columns={0: f'ntlresid{year}'}, inplace=True)
+        W = Queen.from_dataframe(ntlresid)
+        W.transform = 'r'
+        moran_ntl = Moran(ntlresid[f'ntlresid{year}'], W)
+        print(f'moran_ntl{year}: {moran_ntl.I}')
+        moran_loc = Moran_Local(ntlresid[f'ntlresid{year}'], W)
+        p = lisa_cluster(moran_loc, ntlresid, p=0.05, figsize=(9, 9))
+
+        print("Naming clusters (1: HH, 2: LH, 3: LL, 4: HL):")
+        cluster = _viz_utils.moran_hot_cold_spots(moran_loc, p=0.05)
+        aux = pd.DataFrame(cluster)
+        aux.rename(columns={0: f'clusters{year}'}, inplace=True)
+        aux.loc[aux[f'clusters{year}'] == 0, [f'clusters{year}']] = 'NS'
+        aux.loc[aux[f'clusters{year}'] == 1, [f'clusters{year}']] = 'HH'
+        aux.loc[aux[f'clusters{year}'] == 2, [f'clusters{year}']] = 'LH'
+        aux.loc[aux[f'clusters{year}'] == 3, [f'clusters{year}']] = 'LL'
+        aux.loc[aux[f'clusters{year}'] == 4, [f'clusters{year}']] = 'HL'
+        cluster = pd.concat((ntl_level, aux), axis=1)
+        cluster = pd.get_dummies(cluster)
+
+        print(f"Spatial Multiple Linear Regression for upscaling nightlight {year}:")
+        formula = f"CNTL{year} ~ area_hr{year} + area_nr{year} + area_bg{year} + area_lr{year} + clusters{year}_HH + " \
+                  f"clusters{year}_HL + clusters{year}_NS"
+        y, X = patsy.dmatrices(formula, data=ntl_level, return_type='dataframe')
+        spatial_model = sm.OLS(y, X).fit()
+        print(spatial_model.summary())
+        print("\nRetrieving manually the parameter estimates:")
+        print(spatial_model.params)
+
+        print("Checking collinearity (Variance Inflation Factor):")
+        vif = pd.DataFrame()
+        vif['VIF'] = [variance_inflation_factor(X.values, i) for i in range(X.shape[1])]
+        vif['Variable'] = X.columns
+        print(vif)
+
+        return cluster
+
+
+    def dasymetic_mapping(self):
         """
         Conducts dasymetric mapping into the desired scale. Desired scale could be at the level of source layer,
         axiliary layers, or the intersection layer.
-
         :param target_layer:
         :return:
         """
+
+        base, ntl, landuse = self.read_layers()
+
+        for year in [str(i) for i in range(self.START_YEAR, self.END_YEAR)]:
+            # We also need a target layer. Target layer is determined based on the decision-making problem or preference
+            # of the end user.
+            if self.TARGET_LAYER == "NIGHTLIGHT":
+                ntl_level = self.target_night_light(base, ntl, year)
+                cluster = self.upscale_nightlight(ntl_level, year)
+
+
+
+
