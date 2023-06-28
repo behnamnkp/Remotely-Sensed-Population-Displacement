@@ -88,7 +88,6 @@ month_year = ['Jun2014', 'Jul2014', 'Oct2016', 'Nov2016', 'Jan2017','Feb2017', '
 # models = ['ntlMonthlyIncorrected_', 'ntlMonthlyCorrected_']
 mdl = 'ntlMonthlyIncorrected_'
 
-
 NTL = gp.read_file(temp + 'NTL.shp')
 NTL['ntl_id'] = NTL.index + 1
 NTL['ntl_area'] = NTL.area
@@ -99,7 +98,6 @@ census = gp.read_file(temp + 'census.shp')
 census['census_id'] = census.index + 1
 census['census_area'] = census.area
 boundary = gp.read_file(temp + 'CensusBoundary.shp')
-
 
 for my in month_year:
     year = my[-4:]

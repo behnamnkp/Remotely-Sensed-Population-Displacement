@@ -66,6 +66,40 @@ class Dasymetric:
             except:
                 print("Having problem vectorizing item: " + item)
 
+    def create_intersection_layer(self, main_lay, aux_lay1, aux_lay2, boundary):
+        """
+        This function intersects all layers into an intersection layer. This intersection is geometric. That is
+        no attributes are kept from the source layers. However, the indexes of the source layers are kept in the
+        intersect layer. This is an important feature to later present new estimates the desired scale requested by
+        the end user.
+        :return:
+        """
+
+        # Define the boundaries of layers
+        lay1 = gp.clip(aux_lay1, boundary)
+        lay1['ntl_clip_id'] = lay1.index + 1
+        lay1['ntl_clip_area'] = lay1.geometry.area
+        lay2 = gp.clip(aux_lay2, boundary)
+        lay2['landuse_clip_id'] = lay2.index + 1
+        lay2['landuse_clip_area'] = lay2.geometry.area
+
+        # When working with dasymetric modeling, all layers must intersect to create a geometric layer that
+        # represents the highest spatial solution. All objects within this new layer must have a value for all
+        # layers involved in dasymetric mapping.
+        intersect = gp.overlay(main_lay, lay1, how='intersection')
+        intersect_all = gp.overlay(intersect, lay2, how='intersection')
+
+        # This intersection layer is the highest spatial resolution layer
+        intersect_all['intersect_id'] = intersect_all.index + 1
+        intersect_all['intersect_area'] = intersect_all.geometry.area
+
+        # For boundary areas, we need to calculate nightlight values based on the area.
+        for year in [str(i) for i in range(self.START_YEAR, self.END_YEAR)]:
+            intersect_all['cntl' + year] = (intersect_all['ntl_clip_area'] / intersect_all['ntl_area']) * \
+                                           intersect_all['ntl' + year]
+
+        return [intersect_all, lay1, lay2]
+
     def read_layers(self):
         """
         Read layers that are involved in dasymetric mapping. In the current pipeline we have two auxiliary data sets:
@@ -111,39 +145,9 @@ class Dasymetric:
             landuse.rename({'Shape_Area':'landuse_area'}, axis=1, inplace=True)
             landuse.drop('Shape_Leng', axis=1, inplace=True)
 
-            # Define the boundaries of layers
-            ntl_clip = gp.clip(ntl, boundary)
-            ntl_clip['ntl_clip_id'] = ntl_clip.index + 1
-            ntl_clip['ntl_clip_area'] = ntl_clip.geometry.area
-            landuse_clip = gp.clip(landuse, boundary)
-            landuse_clip['landuse_clip_id'] = landuse_clip.index + 1
-            landuse_clip['landuse_clip_area'] = landuse_clip.geometry.area
-
-            # When working with dasymetric modeling, all layers must intersect to create a geometric layer that
-            # represents the highest spatial solution. All objects within this new layer must have a value for all
-            # layers involved in dasymetric mapping.
-            intersect = gp.overlay(census, ntl_clip, how='intersection')
-            intersect_all = gp.overlay(intersect, landuse_clip, how='intersection')
-
-            # This intersection layer is the highest spatial resolution layer
-            intersect_all['intersect_id'] = intersect_all.index + 1
-            intersect_all['intersect_area'] = intersect_all.geometry.area
-
-            # For boundary areas, we need to calculate nightlight values based on the area.
-            for year in [str(i) for i in range(self.START_YEAR, self.END_YEAR)]:
-                intersect_all['CNTL' + year] = (intersect_all['ntl_clip_area'] / intersect_all['ntl_area']) * \
-                                               intersect_all['NTL' + year]
+        intersect_all, ntl_clip, landuse_clip = self.create_intersection_layer(census, ntl, landuse, boundary)
 
         return [intersect_all, ntl_clip, landuse_clip]
-
-    def create_intersection_layer(self):
-        """
-        This function intersects all layers into an intersection layer. This intersection is geometric. That is
-        no attributes are kept from the source layers. However, the indexes of the source layers are kept in the
-        intersect layer. This is an important feature to later present new estimates the desired scale requested by
-        the end user.
-        :return:
-        """
 
     def dasymetic_maping(self, target_scale):
         """
