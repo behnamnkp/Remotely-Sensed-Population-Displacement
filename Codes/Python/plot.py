@@ -16,8 +16,7 @@ from splot.esda import lisa_cluster
 import json
 import pickle
 
-
-with open('config.json') as config_file:
+with open('H:/My Drive/population_displacement/config.json') as config_file:
     config = json.load(config_file)
 
 MAIN = config['file_paths']['MAIN']

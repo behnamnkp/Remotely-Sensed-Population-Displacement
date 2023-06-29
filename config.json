@@ -9,7 +9,7 @@
   },
   "flags": {
     "EMPTY_SUFFIXES": [".dbf", ".cpg", ".lock", ".ovr", ".xml", ".tfw", ".dbf", ".shx", ".prj", ".csv", ".pickle", ".pdf"],
-    "START_YEAR": 2014,
+    "START_YEAR": 2013,
     "END_YEAR": 2019,
     "LANDUSE":1,
     "NIGHTLIGHT":1,

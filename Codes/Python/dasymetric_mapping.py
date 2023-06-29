@@ -104,7 +104,11 @@ class Dasymetric:
 
         # If variables associated with each layer are continuous, we need to adjust their values based on area at the
         # border lines.
+        print([str(i) for i in range(self.START_YEAR, self.END_YEAR)])
         for year in [str(i) for i in range(self.START_YEAR, self.END_YEAR)]:
+            print(year)
+            print((intersect_all['ntl_clip_area'] / intersect_all['ntl_area']) * \
+                                           intersect_all['ntl' + year])
             intersect_all['cntl' + year] = (intersect_all['ntl_clip_area'] / intersect_all['ntl_area']) * \
                                            intersect_all['ntl' + year]
 

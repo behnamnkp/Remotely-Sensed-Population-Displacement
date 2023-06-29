@@ -7,7 +7,7 @@ import classifier
 
 def main():
 
-    with open('config.json') as config_file:
+    with open('H:/My Drive/population_displacement/config.json') as config_file:
         config = json.load(config_file)
 
     das_map = Dasymetric(config)
