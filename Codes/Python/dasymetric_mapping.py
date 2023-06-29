@@ -88,9 +88,24 @@ class Dasymetric:
         lay1 = gp.clip(aux_lay1, boundary)
         lay1['ntl_clip_id'] = lay1.index + 1
         lay1['ntl_clip_area'] = lay1.geometry.area
+        l = []
+        for i in lay1.columns:
+            if 'Value' in i:
+                l.append(i.replace('Value', 'ntl'))
+            else:
+                l.append(i)
+        lay1.columns = l
+
         lay2 = gp.clip(aux_lay2, boundary)
         lay2['landuse_clip_id'] = lay2.index + 1
         lay2['landuse_clip_area'] = lay2.geometry.area
+        l = []
+        for i in lay2.columns:
+            if 'Value' in i:
+                l.append(i.replace('Value', 'landuse'))
+            else:
+                l.append(i)
+        lay2.columns = l
 
         # When working with dasymetric modeling, all layers must intersect to create a geometric layer that
         # represents the highest spatial solution. All objects within this new layer must have a value for all
@@ -104,11 +119,7 @@ class Dasymetric:
 
         # If variables associated with each layer are continuous, we need to adjust their values based on area at the
         # border lines.
-        print([str(i) for i in range(self.START_YEAR, self.END_YEAR)])
         for year in [str(i) for i in range(self.START_YEAR, self.END_YEAR)]:
-            print(year)
-            print((intersect_all['ntl_clip_area'] / intersect_all['ntl_area']) * \
-                                           intersect_all['ntl' + year])
             intersect_all['cntl' + year] = (intersect_all['ntl_clip_area'] / intersect_all['ntl_area']) * \
                                            intersect_all['ntl' + year]
 
@@ -126,16 +137,15 @@ class Dasymetric:
                 intersect_all.drop('intersect_area_other', inplace=True, axis=1)
                 intersect_all.rename({'intersect_area_caller':'intersect_area'}, axis=1, inplace=True)
 
-        intersect_all = intersect_all.reset_index()[['id', 'census_id', 'census_area', 'ntl_id', 'ntl_area',
-                                                     'ntl_clip_id', 'ntl_clip_area', 'landuse_id', 'landuse_area',
-                                                     'landuse_clip_id', 'landuse_clip_area', 'intersect_id',
-                                                     'intersect_area', 'MAX_popult', 'estPop2013', 'NTL2013', 'NTL2014',
-                                                     'NTL2015', 'NTL2016', 'NTL2017', 'NTL2018', 'landuse2014',
-                                                     'landuse2015', 'landuse2016', 'landuse2017', 'landuse2018',
-                                                     'CNTL2013', 'CNTL2014', 'CNTL2015', 'CNTL2016', 'CNTL2017',
-                                                     'CNTL2018', 'census_res_area2014', 'census_res_area2015',
-                                                     'census_res_area2016', 'census_res_area2017', 'census_res_area2018'
-                                                     ]]
+        intersect_all = intersect_all[['id', 'census_id', 'census_area', 'ntl_id', 'ntl_area',
+                                       'ntl_clip_id', 'ntl_clip_area', 'landuse_id', 'landuse_area',
+                                       'landuse_clip_id', 'landuse_clip_area', 'intersect_id',
+                                       'intersect_area', 'MAX_popult', 'estPop2013', 'ntl2013', 'ntl2014',
+                                       'ntl2015', 'ntl2016', 'ntl2017', 'ntl2018', 'landuse2014',
+                                       'landuse2015', 'landuse2016', 'landuse2017', 'landuse2018',
+                                       'cntl2013', 'cntl2014', 'cntl2015', 'cntl2016', 'cntl2017',
+                                       'cntl2018', 'census_res_area2014', 'census_res_area2015',
+                                       'census_res_area2016', 'census_res_area2017', 'census_res_area2018']]
         return [intersect_all, lay1, lay2]
 
     def read_layers(self):
@@ -172,16 +182,14 @@ class Dasymetric:
                 image = gp.read_file(self.OUTPUT + 'ntlmed' + year + '.shp')
                 image.rename({'Value':'Value' + year}, axis=1, inplace=True)
                 ntl = pd.concat([ntl, image['Value' + year]], axis=1)
-            ntl.rename({'Shape_Area':'ntl_area'}, axis=1, inplace=True)
-            ntl.drop('Shape_Leng', axis=1, inplace=True)
+            ntl.drop(['Shape_Leng', 'Shape_Area'], axis=1, inplace=True)
 
             for year in [str(i) for i in range(self.START_YEAR, self.END_YEAR)]:
                 if int(year) >= 2014:
                     image = gp.read_file(self.OUTPUT + 'rsmlabel' + year + '.shp')
                     image.rename({'Value': 'Value' + year}, axis=1, inplace=True)
                     landuse = pd.concat([landuse, image['Value' + year]], axis=1)
-            landuse.rename({'Shape_Area':'landuse_area'}, axis=1, inplace=True)
-            landuse.drop('Shape_Leng', axis=1, inplace=True)
+            landuse.drop(['Shape_Leng', 'Shape_Area'], axis=1, inplace=True)
 
         intersect_all, ntl_clip, landuse_clip = self.create_intersection_layer(census, ntl, landuse, boundary)
 
@@ -189,9 +197,9 @@ class Dasymetric:
 
     def target_night_light(self, base, ntl, year):
 
-        b = base.set_index('ntl_clip_id')
+        b = base.set_index('ntl_clip_id').copy()
 
-        b['countNTL'] = b['index'].groupby(b.index).transform('count')
+        b['countNTL'] = b.groupby(b.index).transform('size')
         if int(year) < 2014:
             aux = b.groupby(['ntl_clip_id', 'landuse2014']).sum().loc[:, ['intersect_area']]
             aux2 = aux.unstack('landuse2014')
@@ -204,14 +212,14 @@ class Dasymetric:
             aux2.columns = ['area_bg' + year, 'area_lr' + year, 'area_hr' + year, 'area_nr' + year]
             aux2.fillna(0, inplace=True)
 
-        aux2['CNTL' + year] = b.groupby(b.index).max()['CNTL' + year]
+        aux2['cntl' + year] = b.groupby(b.index).max()['cntl' + year]
 
         n = ntl.set_index('ntl_clip_id')
         aux2 = n.merge(aux2, left_on=n.index, right_on=aux2.index, how='left')
+
         aux2.drop(
-            ['key_0', 'Shape_Leng', 'Shape_Area', 'ntl_area', 'NTL2014', 'NTL2015', 'ntl_id', 'NTL2016',
-             'NTL2017', 'NTL2018', 'NTL2013', 'ntl_clip_area', 'level_0'], inplace=True, axis=1)
-        n.drop(['level_0'], inplace=True, axis=1)
+            ['key_0', 'ntl_area', 'ntl2014', 'ntl2015', 'ntl_id', 'ntl2016',
+             'ntl2017', 'ntl2018', 'ntl2013', 'ntl_clip_area'], inplace=True, axis=1)
 
         aux2['X'] = aux2.geometry.centroid.x
         aux2['Y'] = aux2.geometry.centroid.y
@@ -243,7 +251,6 @@ class Dasymetric:
         results.append(coef_values)
         results.append(["" if p_value >= 0.05 else "*" for p_value in p_values])
         results.append([f"({se:.4f})" for se in standard_errors])
-
 
         print("Checking collinearity (Variance Inflation Factor):")
         vif = pd.DataFrame()
