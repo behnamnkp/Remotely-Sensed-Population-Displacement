@@ -2,9 +2,9 @@
 
 Reliable information about large population displacement and return resulting from wars and armed conflicts is fundamental to plan and deliver humanitarian aids and post-war recovery services. However, field data collection is usually not possible due to the potential risks. Remote sensing could solve this problem. On the one hand, Longitudinal land use products derived from very high-resolution images distinguish human residential areas from other land cover (e.g., vegetation) and land use (e.g., industrial zones) and recognizes potential changes due to damage or development. On the other hand, nightlight reveals the presence and density of the population. In this project, we assessed the potential of remote sensing to estimate the population displacement and return before and after a conflict. 
 
-This project was part of a grant funded by Minerva Research Initiative and the Army Research Office (PI: [Dr. Jim Walsh](https://jamesigoewalsh.com/), Co-PI: [Dr. Jean-Claude Thill](https://pages.charlotte.edu/jean-claude-thill/)).
+This project was part of a grant funded by Minerva Research Initiative and the Army Research Office (PI: [Dr. Jim Walsh](https://jamesigoewalsh.com/), Co-PI: [Dr. Jean-Claude Thill](https://pages.charlotte.edu/jean-claude-thill/), [Dr. Jacob Aronson](https://cidcm.umd.edu/facultyprofile/aronson/jacob)).
 
-Some important technical aspects of this repository:
+## Features
 - The project involves performing high-resolution landuse classification using deep learning techniques.
 - A unique training dataset is created specifically for an urban area in a Middle Eastern country.
 - Geospatial applications typically handle raster and vector data types, and integrating these data types can be challenging. This project addresses this challenge by providing dasymetric solutions within the repository.
@@ -30,19 +30,44 @@ Some important technical aspects of this repository:
 - Matlab 2020b
 - Wget
 
-## Features
-
-- Creates time series of human behavior in response to behavioral interventions during COVID-19
-- Behaviors include, visits to places of interest, facemasking, maintaining six feet distance, gatherings of different sizes, personal hygiene, going to bar and restaurants, working and attending classes remotely, etc.
-- Behaviors are collected separately for two cohorts (student and non-students) at Centre County, PA.
-- Pipeline reads, preprocesses, and mines the raw data sets and applies statistical time series analysis and modeling.
-
 ## Getting Started
-
-To get started with the Behavioral-Interventions repository, follow these steps:
+To get started with the Remotely-Sensed-Population-Displacement repository, follow these steps:
 
 1. Clone the repository: `git clone https://github.com/behnamnkp/Behavioral-Interventions.git`
 2. Organize directories as below
+```
+📁 BI
+├── 📁 documents
+├── 📁 temp
+├── 📁 codes
+│   ├── 📁 old
+│   ├── main.py
+│   ├── main.R
+│   ├── bi.py
+│   ├── read_data.py
+│   ├── plot.py
+│   ├── resample_data.py
+│   ├── functions.R
+│   ├── epidemic_weeks.R
+├── 📁 src
+│   ├── 📁 d4a
+│   ├── 📁 census
+│   ├── 📁 safegraph
+│   ├── 📁 psu_calendar
+│   ├── 📁 environment
+│   ├── 📁 vaccination
+│   ├── 📁 disease_incidence
+│   ├── 📁 traffic_cameras
+│   ├── 📁 safegraph_home_panel_summaries
+│   ├── 📁 safegraph_social_distancing
+├── 📁 output             
+│   ├── 📁 exploratory_analysis   
+│   ├── 📁 timeseries_regression      
+│   └── 📁 reports  
+└── 📄 config.json
+└── 📄 README.md
+└── ...
+```
 3. Make sure you use the right versions of Python and R
 4. Install the required dependencies in `requirements.txt`
 5. Configure the flags and paths in the `.config.json` file
