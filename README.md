@@ -4,10 +4,10 @@ Reliable information about large population displacement and return resulting fr
 
 This project was part of a grant funded by Minerva Research Initiative and the Army Research Office (PI: [Dr. Jim Walsh](https://jamesigoewalsh.com/), Co-PI: [Dr. Jean-Claude Thill](https://pages.charlotte.edu/jean-claude-thill/)).
 
-Some important technical aspects of the repository:
+Some important technical aspects of this repository:
 - The project involves performing high-resolution landuse classification using deep learning techniques.
-- A substantial training dataset is created specifically for an urban area in a Middle Eastern country.
-- Geospatial applications typically handle raster and vector data types, and integrating these data types can be challenging. This project addresses this challenge by providing solutions within the repository.
+- A unique training dataset is created specifically for an urban area in a Middle Eastern country.
+- Geospatial applications typically handle raster and vector data types, and integrating these data types can be challenging. This project addresses this challenge by providing dasymetric solutions within the repository.
 - By incorporating powerful spatial statistical models, the project enhances the remote sensing of population displacement, adding valuable insights to the analysis.
 
 ## Table of Contents
