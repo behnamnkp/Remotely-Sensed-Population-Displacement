@@ -230,7 +230,7 @@ class Dasymetric:
 
         results = []
         print(f"Multiple Linear Regression for upscaling nightlight {year}:")
-        formula = f"CNTL{year} ~ area_hr{year} + area_nr{year} + area_bg{year} + area_lr{year}"
+        formula = f"cntl{year} ~ area_hr{year} + area_nr{year} + area_bg{year} + area_lr{year}"
         y, X = patsy.dmatrices(formula, data=ntl_level, return_type='dataframe')
         model = sm.OLS(y, X).fit()
         print(model.summary())
@@ -244,8 +244,7 @@ class Dasymetric:
         standard_errors = model.bse.values
 
         # Format coefficients and add asterisks for significance levels
-        coef_values = [f"{coef:.4f}" if p_value >= 0.05 else f"{coef:.4f}*" for coef, p_value in
-                       zip(coefficients, p_values)]
+        coef_values = [f"{coef:.4f}" if p_value >= 0.05 else f"{coef:.4f}*" for coef, p_value in zip(coefficients, p_values)]
 
         # Add coefficients, significance levels, and standard errors to the results list
         results.append(coef_values)
@@ -266,7 +265,7 @@ class Dasymetric:
         moran_ntl = Moran(ntlresid[f'ntlresid{year}'], W)
         print(f'moran_ntl{year}: {moran_ntl.I}')
         moran_loc = Moran_Local(ntlresid[f'ntlresid{year}'], W)
-        plot.plot_clusters(moran_loc, ntlresid, "Night Light")
+        plot.plot_clusters(moran_loc, ntlresid, year, "Night Light")
 
         print("Naming clusters (1: HH, 2: LH, 3: LL, 4: HL):")
         cluster = _viz_utils.moran_hot_cold_spots(moran_loc, p=0.05)
@@ -281,9 +280,8 @@ class Dasymetric:
         cluster = pd.get_dummies(cluster)
 
         print(f"Spatial Multiple Linear Regression for upscaling nightlight {year}:")
-        formula = f"CNTL{year} ~ area_hr{year} + area_nr{year} + area_bg{year} + area_lr{year} + clusters{year}_HH + " \
-                  f"clusters{year}_HL + clusters{year}_NS"
-        y, X = patsy.dmatrices(formula, data=ntl_level, return_type='dataframe')
+        formula = f"cntl{year} ~ area_hr{year} + area_nr{year} + area_bg{year} + area_lr{year} + clusters{year}_HH + clusters{year}_HL + clusters{year}_NS"
+        y, X = patsy.dmatrices(formula, data=cluster, return_type='dataframe')
         spatial_model = sm.OLS(y, X).fit()
         print(spatial_model.summary())
         print("\nRetrieving manually the parameter estimates:")
@@ -300,6 +298,7 @@ class Dasymetric:
 
     def map_layers(self, cluster, ntl, base):
 
+        breakpoint()
         cluster = cluster.merge(ntl[['ntl_clip_id']], left_on=cluster.index, right_on=ntl.index.array, how='left')
         cluster.drop('key_0', axis=1, inplace=True)
         cluster.set_index('ntl_clip_id', inplace=True)

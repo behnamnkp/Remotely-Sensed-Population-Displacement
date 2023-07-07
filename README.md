@@ -2,6 +2,11 @@
 
 Reliable information about large population displacement and return resulting from wars and armed conflicts is fundamental to plan and deliver humanitarian aids and post-war recovery services. However, field data collection is usually not possible due to the potential risks. Remote sensing could solve this problem. On the one hand, Longitudinal land use products derived from very high-resolution images distinguish human residential areas from other land cover (e.g., vegetation) and land use (e.g., industrial zones) and recognizes potential changes due to damage or development. On the other hand, nightlight reveals the presence and density of the population. In this project, we assessed the potential of remote sensing to estimate the population displacement and return before and after a conflict. 
 This project was part of a grant funded by Minerva Research Initiative and the Army Research Office (PI: [Dr. Jim Walsh](https://jamesigoewalsh.com/), Co-PI: [Dr. Jean-Claude Thill](https://pages.charlotte.edu/jean-claude-thill/)).
+Some important aspects of the repository:
+- We conduct very high resolution landuse classification using deep learning
+- A large training set is developed for an urban area in a middle eastern country
+- Raster and vector data types are the major data types when working with Geospatial applications. Fusing these types of data is always a challenge. We address that within this repository.
+- Powerful spatial statistical models can add extra value to the remotely sensing of population displacement 
 
 ## Table of Contents
 
