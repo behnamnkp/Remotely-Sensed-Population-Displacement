@@ -17,7 +17,7 @@ This project was part of a grant funded by Minerva Research Initiative and the A
 - [Technologies Used](#technologies-used)
 - [Features](#features)
 - [Getting Started](#getting-started)
-- [Folder structure](#Folder-structure)
+- [Folder Structure](#folder-tructure)
 - [Usage](#usage)
 - [Examples](#examples)
 - [Documentation](#documentation)
@@ -42,7 +42,7 @@ To get started with the Remotely-Sensed-Population-Displacement repository, foll
 4. Install the required dependencies in `requirements.txt`
 5. Configure the flags and paths in the `.config.json` file
 
-## Folder structure
+## Folder Structure
 ```
 📁 BI
 ├── 📁 documents
