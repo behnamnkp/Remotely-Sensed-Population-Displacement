@@ -9,7 +9,7 @@ This project was part of a grant funded by Minerva Research Initiative and the A
 - [Technologies Used](#technologies-used)
 - [Features](#features)
 - [Getting Started](#getting-started)
-- [Folder Structure](#folder-tructure)
+- [Folder Structure](#folder-structure)
 - [Usage](#usage)
 - [Examples](#examples)
 - [Documentation](#documentation)
