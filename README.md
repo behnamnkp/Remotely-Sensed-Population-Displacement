@@ -10,6 +10,8 @@ This project was part of a grant funded by Minerva Research Initiative and the A
 - Geospatial applications typically handle raster and vector data types, and integrating these data types can be challenging. This project addresses this challenge by providing dasymetric solutions within the repository.
 - By incorporating powerful spatial statistical models, the project enhances the remote sensing of population displacement, adding valuable insights to the analysis.
 
+![Framework](Figs/Framework.png)
+
 ## Table of Contents
 
 - [Technologies Used](#technologies-used)
