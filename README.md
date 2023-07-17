@@ -4,14 +4,6 @@ Reliable information about large population displacement and return resulting fr
 
 This project was part of a grant funded by Minerva Research Initiative and the Army Research Office (PI: [Dr. Jim Walsh](https://jamesigoewalsh.com/), Co-PI: [Dr. Jean-Claude Thill](https://pages.charlotte.edu/jean-claude-thill/), [Dr. Jacob Aronson](https://cidcm.umd.edu/facultyprofile/aronson/jacob)).
 
-## Features
-- The project involves performing high-resolution landuse classification using deep learning techniques.
-- A unique training dataset is created specifically for an urban area in a Middle Eastern country.
-- Geospatial applications typically handle raster and vector data types, and integrating these data types can be challenging. This project addresses this challenge by providing dasymetric solutions within the repository.
-- By incorporating powerful spatial statistical models, the project enhances the remote sensing of population displacement, adding valuable insights to the analysis.
-
-![Framework](Figs/Framework.png)
-
 ## Table of Contents
 
 - [Technologies Used](#technologies-used)
@@ -32,6 +24,14 @@ This project was part of a grant funded by Minerva Research Initiative and the A
 - R version 4.2.3 (2023-03-15 ucrt)
 - Matlab 2020b
 - Wget
+
+## Features
+- The project involves performing high-resolution landuse classification using deep learning techniques.
+- A unique training dataset is created specifically for an urban area in a Middle Eastern country.
+- Geospatial applications typically handle raster and vector data types, and integrating these data types can be challenging. This project addresses this challenge by providing dasymetric solutions within the repository.
+- By incorporating powerful spatial statistical models, the project enhances the remote sensing of population displacement, adding valuable insights to the analysis.
+
+![Framework](Figs/Framework.png)
 
 ## Getting Started
 To get started with the Remotely-Sensed-Population-Displacement repository, follow these steps:
