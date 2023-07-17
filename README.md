@@ -17,6 +17,7 @@ This project was part of a grant funded by Minerva Research Initiative and the A
 - [Technologies Used](#technologies-used)
 - [Features](#features)
 - [Getting Started](#getting-started)
+- [Folder structure](#Folder-structure)
 - [Usage](#usage)
 - [Examples](#examples)
 - [Documentation](#documentation)
@@ -36,7 +37,12 @@ This project was part of a grant funded by Minerva Research Initiative and the A
 To get started with the Remotely-Sensed-Population-Displacement repository, follow these steps:
 
 1. Clone the repository: `git clone https://github.com/behnamnkp/Behavioral-Interventions.git`
-2. Organize directories as below
+2. Organize directories as in the folder structure
+3. Make sure you use the right versions of Python and R
+4. Install the required dependencies in `requirements.txt`
+5. Configure the flags and paths in the `.config.json` file
+
+## Folder structure
 ```
 📁 BI
 ├── 📁 documents
@@ -70,9 +76,6 @@ To get started with the Remotely-Sensed-Population-Displacement repository, foll
 └── 📄 README.md
 └── ...
 ```
-3. Make sure you use the right versions of Python and R
-4. Install the required dependencies in `requirements.txt`
-5. Configure the flags and paths in the `.config.json` file
 
 ## Usage
 Once you organize files and directories, you will be able to run the code. Code creates visualizations of uptake, persistence, and waning of behavioral interventions ove time, and conducts time series regression analysis.
