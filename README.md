@@ -87,7 +87,7 @@ We test our approach in Mosul, Iraq during a five years (2014-2018) of armed con
 
 ## Documentation
 
-For detailed documentation on the API endpoints and available functions, please refer to the [API Documentation](docs/api-docs.md) file.
+A manuscript of the methodology is currently under review at [Remote Sensing of Environment](https://drive.google.com/file/d/1bn6aB1neviTIUqsm3jNDG1T3XPRgK0SC/view?usp=sharing). 
 
 ## Contributing
 
@@ -99,20 +99,20 @@ To contribute, please follow these steps:
 4. Push the changes to your forked repository: `git push origin feature/new-feature`
 5. Submit a pull request
 
-Please adhere to the [Code of Conduct](CODE_OF_CONDUCT.md) and follow the coding conventions specified in the project.
+Code of conduct: This repository and the manuscript are not publicly accessible at the moment, with the permission of the co-authors, this version is available exclusively to readers with access to this GitFront repository. Once the review process is complete and the manuscript is officially published or becomes publicly accessible, it will be made available to a broader audience. Until then, please note that access to the manuscript is limited to those who have access to this specific GitFront repository.
+
 
 ## License
 
-This project is not licensed yet.
+This project is not publicly licensed.
 
 ## Acknowledgments
 
-- This project was funded by [Data4Action project](https://covid19.ssri.psu.edu/data4action#:~:text=The%20Data%204%20Action%20Project,Clinical%20and%20Translational%20Science%20Institute.) and National Science Foundation (NSF)
-- COVID-19 and Seasonal Influenza cases and vaccination were provided by PSU Health Services and Pennsylvania Department of Health.
+This project was funded by [Minerva Research Initiative and the Army Research Office](https://minerva.defense.gov/).
 
 ## Contact
 
-For any questions, suggestions, or feedback, please contact us:
+For any questions, suggestions, or feedback, please contact me:
 
 - Email: bzn5190@psu.edu
 - Twitter: @behnam_nkp
