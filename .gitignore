@@ -11,12 +11,13 @@
 *.xlsx
 *.rds
 *.docx
+*.ppt
 *.DS_Store
 *.Rproj
 /data/.DS_Store
 
+
 # Output files from R CMD build
 */Old/
 */Results/
-*/Docs/
 */Sources/
