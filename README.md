@@ -38,7 +38,8 @@ A manuscript of the methodology is currently under [review](https://drive.google
 ## Getting Started
 To get started with the Remotely-Sensed-Population-Displacement repository, follow these steps:
 
-1. Clone the repository: `git clone https://github.com/behnamnkp/Behavioral-Interventions.git`
+1. Make a request to access the data
+2. Clone the repository: `git clone https://github.com/behnamnkp/Behavioral-Interventions.git`
 2. Organize directories as in the folder structure
 3. Make sure you use the right versions of Python and R
 4. Install the required dependencies in `requirements.txt`
