@@ -93,7 +93,7 @@ We test our approach in Mosul, Iraq during a five years (2014-2018) of armed con
 Mosul Data Set: 
 - HR: High residential neighborhoods
 - MX: Mixed residential neighborhoods
-- HR: Non-residential neighborhoods
+- NR: Non-residential neighborhoods
 - BG: Other categories
 ![Study area](Figs/mosul_data_set.png)
 
