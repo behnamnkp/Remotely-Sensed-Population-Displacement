@@ -89,7 +89,11 @@ Once you organize files and directories, you will be able to run the code. Code 
 We test our approach in Mosul, Iraq during a five years (2014-2018) of armed conflict.
 ![Study area](Figs/study_area_final.png)
 
-Mosul Data Set
+Mosul Data Set: 
+- HR: High residential neighborhoods
+- MX: Mixed residential neighborhoods
+- HR: Non-residential neighborhoods
+- BG: Other categories
 ![Study area](Figs/mosul_data_set.png)
 
 ## Documentation
