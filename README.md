@@ -44,37 +44,42 @@ To get started with the Remotely-Sensed-Population-Displacement repository, foll
 
 ## Folder Structure
 ```
-📁 BI
-├── 📁 documents
-├── 📁 temp
-├── 📁 codes
-│   ├── 📁 old
-│   ├── main.py
-│   ├── main.R
-│   ├── bi.py
-│   ├── read_data.py
-│   ├── plot.py
-│   ├── resample_data.py
-│   ├── functions.R
-│   ├── epidemic_weeks.R
-├── 📁 src
-│   ├── 📁 d4a
-│   ├── 📁 census
-│   ├── 📁 safegraph
-│   ├── 📁 psu_calendar
-│   ├── 📁 environment
-│   ├── 📁 vaccination
-│   ├── 📁 disease_incidence
-│   ├── 📁 traffic_cameras
-│   ├── 📁 safegraph_home_panel_summaries
-│   ├── 📁 safegraph_social_distancing
-├── 📁 output             
-│   ├── 📁 exploratory_analysis   
-│   ├── 📁 timeseries_regression      
-│   └── 📁 reports  
+📁 population_displacement
+├── 📁 Docs
+├── 📁 Figs
+├── 📁 Codes
+├───── 📁 Python
+│      ├── main.py
+│      ├── dasymetric_mapping.py
+│      ├── utils.py
+│      ├── downloadLAADS.py
+│      ├── readVNP46A2.py
+├───── 📁 Matlab
+│      ├── matReader.m
+│      ├── trainingDataGenerator.m
+│      ├── trainingDataGeneratorGUI.mlapp
+│      ├── trainingDataGeneratorGUI.mlapp
+├──────── 📁 Xception
+│         ├── XceptionVHR.m
+│         ├── vhrclassifierXception18
+├──────── 📁 UNet
+│         ├── unetLayers.m
+├──────── 📁 GoogLeNet
+│         ├── VHRImagesGoogLeNet2.m
+│         ├── VHRImagesGoogLeNet3.m
+├──────── 📁 Planet
+│         ├── read_data.m
+│         ├── preprocess.m
+├───── 📁 R
+│      ├── gwr.R
+├── 📁 Sources
+│   ├── 📁 Field
+│   ├── 📁 LandScan
+│   ├── 📁 Planet
+│   ├── 📁 VIIRS
+│   ├── 📁 VHR
 └── 📄 config.json
 └── 📄 README.md
-└── ...
 ```
 
 ## Usage
@@ -84,6 +89,9 @@ Once you organize files and directories, you will be able to run the code. Code 
 
 We test our approach in Mosul, Iraq during a five years (2014-2018) of armed conflict.
 ![Study area](Figs/study_area_final.png)
+
+Mosul Data Set
+![Study area](Figs/mosul_data_set.png)
 
 ## Documentation
 
