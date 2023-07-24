@@ -4,6 +4,8 @@ Reliable information about large population displacement and return resulting fr
 
 This project was part of a grant funded by Minerva Research Initiative and the Army Research Office (PI: [Dr. Jim Walsh](https://jamesigoewalsh.com/), Co-PI: [Dr. Jean-Claude Thill](https://pages.charlotte.edu/jean-claude-thill/), [Dr. Jacob Aronson](https://cidcm.umd.edu/facultyprofile/aronson/jacob)).
 
+A manuscript of the methodology is currently under review at [Remote Sensing of Environment](https://drive.google.com/file/d/1bn6aB1neviTIUqsm3jNDG1T3XPRgK0SC/view?usp=sharing).
+
 ## Table of Contents
 
 - [Technologies Used](#technologies-used)
@@ -64,9 +66,6 @@ To get started with the Remotely-Sensed-Population-Displacement repository, foll
 │         ├── vhrclassifierXception18
 ├──────── 📁 UNet
 │         ├── unetLayers.m
-├──────── 📁 GoogLeNet
-│         ├── VHRImagesGoogLeNet2.m
-│         ├── VHRImagesGoogLeNet3.m
 ├──────── 📁 Planet
 │         ├── read_data.m
 │         ├── preprocess.m
