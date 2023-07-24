@@ -11,6 +11,7 @@
       <sourceFolder url="file://$MODULE_DIR$/Codes/Python" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/Codes/R" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/Codes/Matlab" isTestSource="false" />
       <excludeFolder url="file://$MODULE_DIR$/Results" />
     </content>
     <orderEntry type="jdk" jdkName="Python 3.10 (population_displacement)" jdkType="Python SDK" />

@@ -1,55 +1,5 @@
 import pandas as pd
-import numpy as np
-import matplotlib.pyplot as plt
-from sklearn.linear_model import LinearRegression
-import numpy as np
-import gdal, os
-import matplotlib.pyplot as plt
-from matplotlib import *
-import pandas as pd
-import scipy.stats
-from pysal.lib import weights
-import pysal as ps
-import libpysal
-from libpysal.weights import Queen, Rook, KNN
-from esda.moran import Moran
-from esda.moran import Moran_Local
-from splot.esda import moran_scatterplot
-import os
-# import arcpy
-# from arcpy import env
-# from arcpy.sa import *
-# from simpledbf import Dbf5
-from os import listdir
-from os.path import isfile, join
-# from simpledbf import Dbf5
 import geopandas as gp
-import libpysal
-import mapclassify
-# import pysal as ps
-# import libpysal
-# import esda
-# from esda.moran import Moran
-# from splot.esda import moran_scatterplot
-# from splot.esda import plot_moran
-from splot.esda import lisa_cluster
-# from esda.moran import Moran_Local
-# from splot.esda import plot_local_autocorrelation
-# from splot.esda import lisa_cluster
-from mpl_toolkits.mplot3d import Axes3D
-# For statistics. Requires statsmodels 5.0 or more
-from statsmodels.formula.api import ols
-from splot import _viz_utils
-from patsy import dmatrices
-from statsmodels.stats.outliers_influence import variance_inflation_factor
-import spreg
-from statsmodels import regression
-import statsmodels.api as sm
-# Analysis of Variance (ANOVA) on linear models
-from statsmodels.stats.anova import anova_lm
-import seaborn as sns
-# from pysal.contrib.viz import mapping as maps
-# import mapclassify
 
 LS_path = 'G:/backupC27152020/Population_Displacement_Final/Resources/LandScan/'
 landuse_path = 'G:/backupC27152020/Population_Displacement_Final/Resources/VHR/landuse/'

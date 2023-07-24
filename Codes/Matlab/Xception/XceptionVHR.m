@@ -1,12 +1,15 @@
 %% Train the Xception network
 clc;
 clear;
-cd 'G:\backupC27152020\Population_Displacement_Final\'
-%% Read train data
+cd "G:\backupC27152020\Population_Displacement_Final\""
+
+% Set system to utilize GPU devices
 %gpuDevice
+
+%% Read train data
 % path to the root file of training data
 digitDatasetPath = fullfile(...
-    'G:\backupC27152020\Population_Displacement_Final\Resources\VHR\training_patches\');
+    "G:\backupC27152020\Population_Displacement_Final\Resources\VHR\training_patches\"");
 
 imds = imageDatastore(digitDatasetPath, ...
     'IncludeSubfolders',true,'LabelSource','foldernames');
@@ -18,7 +21,7 @@ train_data = imds;
 
 %addpath('/users/bnikparv/Documents/MATLAB/Examples/R2019b/nnet/TransferLearningUsingGoogLeNetExample')
  
-%% Count of datasets
+%% Data set stats
 labelCountTrain = countEachLabel(imdsTrain)
 labelCountVal = countEachLabel(imdsVal)
 labelCountTvalidation = countEachLabel(imdsValidation)
@@ -27,6 +30,8 @@ labelCountTvalidation = countEachLabel(imdsValidation)
 img = readimage(imdsTrain,1);
 size(img)
 
+
+%% Set up the network
 net = xception;
 
 inputSize = [299 299 3];
@@ -43,6 +48,7 @@ else
     lgraph = layerGraph(net);
 end 
 
+%% Set up the layers
 [learnableLayer,classLayer] = findLayersToReplace(lgraph);
 [learnableLayer,classLayer]
 
@@ -64,16 +70,17 @@ lgraph = replaceLayer(lgraph,learnableLayer.Name,newLearnableLayer);
 newClassLayer = classificationLayer('Name','new_classoutput');
 lgraph = replaceLayer(lgraph,classLayer.Name,newClassLayer);
 
-% Transfer learning
+%% Transfer learning
 layers = lgraph.Layers;
 connections = lgraph.Connections;
 
 layers(1:34) = freezeWeights(layers(1:34));
 lgraph = createLgraphUsingConnections(layers,connections);
 
+%% load checkpoint
 %load('/users/bnikparv/matlab/all/net_checkpoint__10075__2020_10_31__11_28_11.mat')
 
-%% Set the options for the network
+%% Set the options for the network training
 %     'ExecutionEnvironment','multi-gpu',...
 options = trainingOptions('adam', ...
     'MiniBatchSize',16, ...
@@ -83,15 +90,15 @@ options = trainingOptions('adam', ...
     'ValidationData',imdsVal , ...
     'ValidationFrequency',3, ...
     'Verbose',true, ...
-    'CheckpointPath','G:\backupC27152020\Population_Displacement_Final\Code\Matlab\checkpoints\', ...
-    'Plots','training-progress')
+    'CheckpointPath','G:\backupC27152020\Population_Displacement_Final\Code\Matlab\checkpoints\Plots','training-progress')
 
-%%
+%% Train the network
 %tic
 netTransfer= trainNetwork(imdsTrain,lgraph,options)
 %netTransfer= trainNetwork(imdsTrain,layerGraph(net),options)
 %toc
 
+%% Save training results
 filename = 'G:\backupC27152020\Population_Displacement_Final\Code\Matlab\Xception\net_03262021.onnx';
 exportONNXNetwork(netTransfer,filename)
 save(['net_03262021.mat'],'netTransfer','options');

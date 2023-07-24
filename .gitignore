@@ -17,6 +17,6 @@
 /data/.DS_Store
 
 # Output files from R CMD build
-*/Old/
+*/old/
 */Results/
 */Sources/

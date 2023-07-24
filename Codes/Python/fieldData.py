@@ -5,7 +5,6 @@ import matplotlib.pyplot as plt
 import numpy as np
 import matplotlib.animation as ani
 
-
 field = 'G:/backupC27152020/Population_Displacement_Final/Resources/Field/'
 figures = 'G:/backupC27152020/Population_Displacement_Final/Results/Model/'
 

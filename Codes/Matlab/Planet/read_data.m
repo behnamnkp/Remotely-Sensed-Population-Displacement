@@ -1,5 +1,6 @@
 clc
 clear
+%% Read data
 sep15 = single(imread('C:\Users\bnikparv\Downloads\VHRClassified\plt15.tif'));
 sep15=sep15(2:end-1,:,:);
 sep16 = single(imread('C:\Users\bnikparv\Downloads\planet_order_326105_sep16\clip4_sep_16_2.tif'));
@@ -18,7 +19,7 @@ lb17=lb17(2:end,1:end-1,:);
 lb18 = (imread('C:\Users\bnikparv\Downloads\VHRClassified\rsm_18.tif'));
 lb18=lb18(2:end,1:end-1,:);
 
-
+%% Normalization
 m15_1 = max(max(sep15(:,:,1)));
 m15_2 = max(max(sep15(:,:,2)));
 m15_3 = max(max(sep15(:,:,3)));
@@ -58,14 +59,15 @@ sep18n(:,:,3) = sep18(:,:,3)./m18_3;
 all = [sep15n, sep16n, sep17n, sep18n];
 all2 = uint16(all.*65535);
 
-
 alllb = uint8([lb15, lb16, lb17, lb18]);
 
-% 
+%%
 % imwrite(sep16n, 'sep16n.tif')
 % imwrite(sep17n, 'jun17n.tif')
 % imwrite( sep18n, 'aug18n.tif')
 %%
+
+%% Create test and train data sets
 train_data = all2(311:2999, :,:);
 train_labels = alllb(311:2999, :,:);
 imwrite(train_data, 'train_data.tif');
@@ -76,7 +78,7 @@ val_labels = alllb(3000:end, :,:);
 imwrite(val_data, 'val_data.tif');
 imwrite(val_labels, 'val_labels.tif');
 
-%%
+%% georeference the images
 a = imread('pltall.tif');
 
 %a = imread('lb15gcor0.tif');
