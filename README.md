@@ -81,7 +81,7 @@ To get started with the Remotely-Sensed-Population-Displacement repository, foll
 ```
 
 ## Usage
-Once you organize files and directories, you will be able to run the code. Code creates visualizations of uptake, persistence, and waning of behavioral interventions ove time, and conducts time series regression analysis.
+Once you organize files and directories, you will be able to run the code.
 
 ## Examples
 
