@@ -111,11 +111,6 @@ To contribute, please follow these steps:
 
 Code of conduct: This repository and the manuscript are not publicly accessible at the moment, with the permission of the co-authors, this version is available exclusively to readers with access to this GitFront repository. Once the review process is complete and the manuscript is officially published or becomes publicly accessible, it will be made available to a broader audience. Until then, please note that access to the manuscript is limited to those who have access to this specific GitFront repository.
 
-
-## License
-
-This project is not publicly licensed.
-
 ## Acknowledgments
 
 This project was funded by [Minerva Research Initiative and the Army Research Office](https://minerva.defense.gov/).
