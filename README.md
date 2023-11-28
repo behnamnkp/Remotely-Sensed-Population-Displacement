@@ -95,10 +95,6 @@ Mosul Data Set:
 - BG: Other categories
 ![Study area](Figs/mosul_data_set.png)
 
-## Documentation
-
-A manuscript of the methodology is currently under [review](https://drive.google.com/file/d/1bn6aB1neviTIUqsm3jNDG1T3XPRgK0SC/view?usp=sharing). 
-
 ## Contributing
 
 To contribute, please follow these steps:
