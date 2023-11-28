@@ -4,8 +4,6 @@ Reliable information about large population displacement and return resulting fr
 
 This project was part of a grant funded by Minerva Research Initiative and the Army Research Office (PI: [Dr. Jim Walsh](https://jamesigoewalsh.com/), Co-PI: [Dr. Jean-Claude Thill](https://pages.charlotte.edu/jean-claude-thill/), [Dr. Jacob Aronson](https://cidcm.umd.edu/facultyprofile/aronson/jacob)).
 
-A manuscript of the methodology is currently under [review](https://drive.google.com/file/d/1bn6aB1neviTIUqsm3jNDG1T3XPRgK0SC/view?usp=sharing).
-
 ## Table of Contents
 
 - [Technologies Used](#technologies-used)
@@ -22,7 +20,7 @@ A manuscript of the methodology is currently under [review](https://drive.google
 
 ## Technologies Used
 
-- Python 3.9
+- Tensorflow, Geopandas, Shapely, Rasterio, Arcpy
 - R version 4.2.3 (2023-03-15 ucrt)
 - Matlab 2020b
 - Wget
